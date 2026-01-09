@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+package gz.custom_msgs;
+
+import "gz/msgs/header.proto";
+import "gz/msgs/pose.proto";
+
+message RFIDCreateResponse
+{
+	gz.msgs.Header header = 1;
+
+	// This status field will be true if all tags were created successfully, otherwise false
+	bool status = 2;
+
+	message TagResponse {
+		int32 tag_id = 1;
+		string category = 2;
+		gz.msgs.Pose pose = 3;
+	}
+
+	repeated TagResponse tags = 3;
+
+}
