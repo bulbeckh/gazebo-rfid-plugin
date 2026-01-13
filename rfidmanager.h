@@ -53,6 +53,9 @@ class RFIDManagerPlugin :
 		/* @brief Whether we have initialised the tag manager */
 		bool rfidManagerInitialised{false};
 
+		/* @brief Index of the next created tag. Used to specify tag names */
+		uint64_t tagIndex{0};
+
 		/* @brief Callback method for tag creation requests */
 		bool tagCreateCallback(const gz::custom_msgs::RFIDCreateRequest& req, gz::custom_msgs::RFIDCreateResponse& reply);
 

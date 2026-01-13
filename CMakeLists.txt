@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project(Gazebo-RFID-Plugin)
 
-
 find_package(gz-cmake3 REQUIRED)
 set(GZ_CMAKE_VER ${gz-cmake3_VERSION_MAJOR})
 
@@ -33,7 +32,6 @@ gz_msgs_generate_messages(
 	DEPENDENCIES gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
 )
 
-
 add_library(rfidPlugin
 	SHARED
 	rfidmanager.cpp
@@ -44,6 +42,4 @@ target_link_libraries(rfidPlugin PRIVATE
 	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
 	${PROJECT_NAME}-msgs
 )
-
-
 

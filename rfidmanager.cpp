@@ -17,7 +17,6 @@ GZ_ADD_PLUGIN(RFIDManagerPlugin,
 RFIDManagerPlugin::RFIDManagerPlugin(void)
 {
 
-
 }
 
 void RFIDManagerPlugin::Configure(const gz::sim::Entity &_entity,
@@ -97,9 +96,15 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDCreateReque
 
 		ef->set_allow_renaming(true);
 
+		std::string tag_name = "rfid-tag-" + std::to_string(tagIndex);
+		ef->set_name(tag_name);
+
 		ef->mutable_pose()->CopyFrom(tag.pose());
 
 		// TODO Somehow add the category information into the model (maybe via model name)
+		
+		// Increment tag index
+		tagIndex += 1;
 	}
 
 	// Call entity creation service
