@@ -1,8 +1,10 @@
 #pragma once
 
 #include <gz/sim/System.hh>
+#include <gz/sim/Link.hh>
 #include <gz/sim/SdfEntityCreator.hh>
 #include <gz/transport/Node.hh>
+
 
 #include <gz/custom_msgs/rfid_scan_response.pb.h>
 
@@ -50,7 +52,20 @@ class RFIDScannerPlugin :
 		gz::transport::Node node;
 
 		/* @brief Number of iterations of PreUpdate since last scan */
-		uint16_t scan_index{0};
+		uint64_t scan_index{0};
+
+		// TODO There is a better way to identify models (entities) as tags than check the name. Perhaps use components
+		/* @brief The prefix used to identify a model as a tag model */
+		std::string tag_prefix{"rfid-tag-"};
+
+		/* @brief Whether we have initialised all the necessary elements for the scanner to function */
+		bool scanner_initialised{false};
+
+		/* @brief The entity of this scanner. Set during Configure */
+		gz::sim::Entity scanner_entity;
+
+		/* @brief The canonical link of the scanner that is used to determine it's pose. Set during first PreUpdate */
+		gz::sim::Link scanner_link;
 
 	private:
 		/* @brief Flag for whether we need to a do a scan during next PreUpdate */

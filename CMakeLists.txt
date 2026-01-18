@@ -8,6 +8,9 @@ set(GZ_CMAKE_VER ${gz-cmake3_VERSION_MAJOR})
 gz_find_package(gz-msgs10 REQUIRED)
 set(GZ_MSGS_VER ${gz-msgs10_VERSION_MAJOR})
 
+gz_find_package(gz-math7 REQUIRED)
+set(GZ_MATH_VER ${gz-math7_VERSION_MAJOR})
+
 gz_find_package(gz-common5 REQUIRED)
 set(GZ_COMMON_VER ${gz-common5_VERSION_MAJOR})
 
@@ -32,13 +35,20 @@ gz_msgs_generate_messages(
 	DEPENDENCIES gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
 )
 
-add_library(rfidPlugin
-	SHARED
+add_library(rfidPlugin SHARED
 	rfidmanager.cpp
+)
+
+add_library(rfidScanner SHARED
 	rfidscanner.cpp
 )
 
 target_link_libraries(rfidPlugin PRIVATE
+	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
+	${PROJECT_NAME}-msgs
+)
+
+target_link_libraries(rfidScanner PRIVATE
 	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
 	${PROJECT_NAME}-msgs
 )

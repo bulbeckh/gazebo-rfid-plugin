@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+	<model name="rfid-scanner">
+		<static>false</static>
+		<link name="rfid-scanner-link">
+			<pose>0 0 0 0 0 0</pose>
+
+			<collision name="rfid-scanner-collision">
+				<geometry>
+					<box><size>0.2 0.2 0.2</size></box>
+				</geometry>
+			</collision>
+
+			<visual name="rfid-scanner-visual">
+				<geometry>
+					<box><size>0.2 0.2 0.2</size></box>
+				</geometry>
+				<material>
+					<ambient>1 0 0 1</ambient>
+				</material>
+			</visual>
+
+			<inertial>
+				<mass>2</mass>
+				<inertia>
+					<ixx>1</ixx>
+					<iyy>1</iyy>
+					<izz>1</izz>
+				</inertia>
+			</inertial>
+
+		</link>
+
+		<plugin filename="librfidScanner" name="RFIDScannerPlugin">
+		</plugin>
+
+	</model>
+</sdf>
+

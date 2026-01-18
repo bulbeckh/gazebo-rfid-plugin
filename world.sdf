@@ -22,6 +22,11 @@
 		<pose>0 0 2 0 0 0</pose>
 	</include-->
 
+	<include>
+		<uri>model://rfid-scanner</uri>
+		<pose>0 0 0 0 0 0</pose>
+	</include>
+
     <scene>
       <ambient>1.0 1.0 1.0</ambient>
       <background>0.8 0.8 0.8</background>
