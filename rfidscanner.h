@@ -5,6 +5,7 @@
 #include <gz/sim/SdfEntityCreator.hh>
 #include <gz/transport/Node.hh>
 
+#include <chrono>
 
 #include <gz/custom_msgs/rfid_scan_response.pb.h>
 
@@ -51,12 +52,12 @@ class RFIDScannerPlugin :
 		/* @brief Node for the scan service */
 		gz::transport::Node node;
 
-		/* @brief Number of iterations of PreUpdate since last scan */
-		uint64_t scan_index{0};
-
 		// TODO There is a better way to identify models (entities) as tags than check the name. Perhaps use components
 		/* @brief The prefix used to identify a model as a tag model */
 		std::string tag_prefix{"rfid-tag-"};
+
+		/* @brief Service name to use for scan request */
+		std::string scan_service_name{"scan_request"};
 
 		/* @brief Whether we have initialised all the necessary elements for the scanner to function */
 		bool scanner_initialised{false};
@@ -66,6 +67,14 @@ class RFIDScannerPlugin :
 
 		/* @brief The canonical link of the scanner that is used to determine it's pose. Set during first PreUpdate */
 		gz::sim::Link scanner_link;
+
+		/* @brief A pointer to the ECM. NOTE We can do this as long as we don't use it to modify the ecm (that should be done
+		 * during PreUpdate/PostUpdate) */
+		gz::sim::EntityComponentManager* ecm_internal{nullptr};
+		
+		/* @brief We keep track of the current simulation time so that we can report it during a scan request */
+		int64_t simulation_time_sec;
+		int32_t simulation_time_nsec;
 
 	private:
 		/* @brief Flag for whether we need to a do a scan during next PreUpdate */
