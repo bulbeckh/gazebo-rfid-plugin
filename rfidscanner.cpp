@@ -39,6 +39,7 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 			gz::sim::components::Model());
 
 	gzwarn << "In loop " << tag_entities.size() << " models found\n";
+	gzwarn << "Time: " << simulation_time_sec << "s " << simulation_time_nsec << "ms\n";
 
 	// Retrieve current pose of the scanner
 	auto sp = scanner_link.WorldPose(*ecm_internal);
@@ -124,9 +125,9 @@ void RFIDScannerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 	// TODO Not thread-safe
 	// Track the most recent simulation time so that we can use it during the callback
 	
-	simulation_time_sec = std::chrono::duration_cast<std::chrono::seconds>(_info.simTime).count();
+	simulation_time_sec = (int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count());
 
-	simulation_time_nsec = std::chrono::duration_cast<std::chrono::milliseconds(_info.simTime).count() - simulation_time_sec*1e3;
+	simulation_time_nsec = std::chrono::duration_cast<std::chrono::milliseconds>(_info.simTime).count(); /* - simulation_time_sec*1e3; */
 
 	return;
 }
