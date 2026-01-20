@@ -41,6 +41,11 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 	gzwarn << "In loop " << tag_entities.size() << " models found\n";
 	gzwarn << "Time: " << simulation_time_sec << "s " << simulation_time_nsec << "ms\n";
 
+	// Add scan timestamp
+	auto scan_time = _reply.mutable_time();
+	scan_time->set_sec(simulation_time_sec);
+	scan_time->set_nsec(simulation_time_nsec);
+
 	// Retrieve current pose of the scanner
 	auto sp = scanner_link.WorldPose(*ecm_internal);
 
@@ -76,8 +81,16 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				double tag_scanner_linear_distance = (wp->CoordPositionSub(*sp)).Length();
 
 				// TODO Need to make this far more advanced (as per RFID model)
-				if (tag_scanner_linear_distance < 2.0) {
+				if (tag_scanner_linear_distance < 100.0) {
 					// Add tag to list of found tags
+
+					auto* scanmessage = _reply.add_scan();
+
+					scanmessage->set_tag_data(model.Name(*ecm_internal));
+
+					// TODO Add these fields
+					scanmessage->set_tag_id(5);
+					scanmessage->set_rssi(100.0);
 				}
 			}
 		}
@@ -127,7 +140,7 @@ void RFIDScannerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 	
 	simulation_time_sec = (int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count());
 
-	simulation_time_nsec = std::chrono::duration_cast<std::chrono::milliseconds>(_info.simTime).count(); /* - simulation_time_sec*1e3; */
+	simulation_time_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(_info.simTime).count(); /* - simulation_time_sec*1e3; */
 
 	return;
 }

@@ -13,7 +13,8 @@ message RFIDScanResponse
 
 	message ScanResponse {
 		int32 tag_id = 1;
-		double rssi = 2;
+		string tag_data = 2;
+		double rssi = 3;
 	}
 
 	repeated ScanResponse scan = 3;
