@@ -103,7 +103,7 @@ class RFIDScannerPlugin :
 		double polarization_max_loss{25};
 
 		/* @brief Antenna transmission gain (in dB) */
-		double antenna_gain{30};
+		double antenna_power{30};
 
 		// TODO This will become dependent on the direction of the antenna
 		/* @brief Antenna (directional) gain */

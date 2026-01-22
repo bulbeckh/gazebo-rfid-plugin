@@ -96,15 +96,43 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 			 *
 			 */
 			if (wp && sp) {
-				// Calculate linear distance
-				double tag_scanner_linear_distance = (wp->CoordPositionSub(*sp)).Length();
+				// To estimate rssi (and read probability), we need both the scanner pose and the tag pose
+				//
+				// From these, we calculate:
+				// 1. Polarization (difference in angle between tag orientation and scanner orientation
+				// 2. Linear distance (scalar difference in position between scanner and tag)
+				// 3. Antenna gain (difference in angle between antenna boresight vector and scanner to tag vector)
 
-				// Calculate dot product between scanner and tag
+				// Calculate linear distance and scanner to tag quaternion
+				gz::math::Vector3d scanner_pose_vector = -1*(wp->CoordPositionSub(*sp));
+				gz::math::Quaterniond scanner_pose_quat;
+				scanner_pose_quat.SetFromAxisAngle(scanner_pose_vector.Normalized(), 0.0);
+
+				double tag_scanner_linear_distance = scanner_pose_vector.Length();
+
+				// Calculate dot product between scanner orientation and tag orientation (for polarization calculation)
 				gz::math::Quaterniond& tag_orientation = wp->Rot();
 				double cos_theta = tag_orientation.Dot(scanner_orientation);
 
-				// Calculate tranmission power
-				
+				// Calculate dot product between scanner to tag vector and scanner orientation (for antenna gain calculation)
+				double antenna_gain_angle = sp->Rot().Dot(scanner_pose_quat.Normalized());
+
+				if (true) {
+					gzwarn << model.Name(*ecm_internal) << "\n";
+					gzwarn << "    Scanner Pose3d: " << *sp << "\n";
+					gzwarn << "    Tag Pose3d: " << *wp << "\n";
+					gzwarn << "    Scanner-Tag Pose3d: " << scanner_pose_vector << "\n";
+					gzwarn << "    Scanner Quaternion: " << sp->Rot() << "\n";
+					gzwarn << "    Tag Quaternion: " << wp->Rot() << "\n";
+					gzwarn << "    Scanner to Tag Quat: " << scanner_pose_quat << "\n";
+					gzwarn << "    Polarization angle: " << cos_theta << "\n";
+					gzwarn << "    Antenna gain angle: " << antenna_gain_angle << "\n";
+					gzwarn << "    Linear distance (m): " << tag_scanner_linear_distance << "\n";
+				}
+
+				// Calculate tranmission power (cap at 5dB attenuation)
+				double antenna_gain = 6 - std::min(5.0, 12*std::pow(antenna_gain_angle / 3,2));
+
 				// TODO This is wrong - the max should be applied before(?) the cosine
 				double loss_polarization = std::min(
 						polarization_max_loss,
@@ -122,17 +150,15 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				}
 
 				double transmission_power = std::min(100.0,
-						std::max(-20.0, antenna_gain + antenna_directional_gain + tag_directional_gain - loss_polarization - loss_path)
+						std::max(-20.0, antenna_power + antenna_directional_gain + tag_directional_gain - loss_polarization - loss_path)
 						);
 
 				double received_power = std::min(100.0,
-						std::max(-20.0, antenna_gain + antenna_directional_gain + tag_directional_gain - 2*(loss_polarization + loss_path)));
+						std::max(-20.0, antenna_power + antenna_directional_gain + tag_directional_gain - 2*(loss_polarization + loss_path)));
 
 				// Calculate read probabilities
-				
 				double p_read_tx = sigmoid((transmission_power - tx_threshold_power) / tx_read_scaling);
 				double p_read_rx = sigmoid((received_power - rx_threshold_power) / rx_read_scaling);
-
 				double p_read = p_read_tx*p_read_rx;
 
 				gzwarn << model.Name(*ecm_internal) << " " << *wp << " , power: " << transmission_power << ", p(read): " << p_read << "\n";
