@@ -202,6 +202,24 @@ void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 		gzmsg << "Created RFID scan service\n";
 	}
 
+	// Retrieve configuration from the sdf
+	if (_sdf->HasElement("path_loss_los_gain")) path_loss_los_gain = _sdf->Get<double>("path_loss_los_gain");
+	if (_sdf->HasElement("path_loss_nlos_gain")) path_loss_nlos_gain = _sdf->Get<double>("path_loss_nlos_gain");
+	if (_sdf->HasElement("path_loss_scaling")) path_loss_scaling = _sdf->Get<double>("path_loss_scaling");
+
+	if (_sdf->HasElement("polarization_minimum_angle")) polarization_minimum_angle = _sdf->Get<double>("polarization_minimum_angle");
+	if (_sdf->HasElement("polarization_max_loss")) polarization_max_loss = _sdf->Get<double>("polarization_max_loss");
+
+	if (_sdf->HasElement("antenna_power")) antenna_power = _sdf->Get<double>("antenna_power");
+	/* TODO antenna_directional_gain will be replaced */
+	if (_sdf->HasElement("tag_directional_gain")) tag_directional_gain = _sdf->Get<double>("tag_directional_gain");
+
+	if (_sdf->HasElement("tx_threshold_power")) tx_threshold_power = _sdf->Get<double>("tx_threshold_power");
+	if (_sdf->HasElement("rx_threshold_power")) rx_threshold_power = _sdf->Get<double>("rx_threshold_power");
+
+	if (_sdf->HasElement("tx_read_scaling")) tx_read_scaling = _sdf->Get<double>("tx_read_scaling");
+	if (_sdf->HasElement("rx_read_scaling")) rx_read_scaling = _sdf->Get<double>("rx_read_scaling");
+
 	return;
 }
 
