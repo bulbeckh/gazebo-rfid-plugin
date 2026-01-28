@@ -22,8 +22,7 @@ set(GZ_SIM_VER ${gz-sim8_VERSION_MAJOR})
 
 ## Add custom RFID messages
 set(MSGS_PROTOS
-	${CMAKE_SOURCE_DIR}/proto/gz/custom_msgs/rfid_create_request.proto
-	${CMAKE_SOURCE_DIR}/proto/gz/custom_msgs/rfid_create_response.proto
+	${CMAKE_SOURCE_DIR}/proto/gz/custom_msgs/rfid_tag_list.proto
 	${CMAKE_SOURCE_DIR}/proto/gz/custom_msgs/rfid_scan_response.proto
 )
 

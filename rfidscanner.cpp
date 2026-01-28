@@ -168,10 +168,10 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 
 					auto* scanmessage = _reply.add_scan();
 
-					scanmessage->set_tag_data(model.Name(*ecm_internal));
+					scanmessage->set_data(model.Name(*ecm_internal));
 
 					// TODO Add these fields
-					scanmessage->set_tag_id(5);
+					scanmessage->set_uid("5");
 					scanmessage->set_rssi(100.0);
 				}
 			}

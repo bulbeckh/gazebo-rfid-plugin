@@ -5,13 +5,15 @@ package gz.custom_msgs;
 import "gz/msgs/header.proto";
 import "gz/msgs/pose.proto";
 
-message RFIDCreateRequest
+message RFIDTagList
 {
 	gz.msgs.Header header = 1;
 
 	message Tag {
-		string category = 1;
-		gz.msgs.Pose pose = 2;
+		string uid = 1;
+		string data = 2;
+		gz.msgs.Pose pose = 3;
+		bool status = 4;
 	}
 
 	repeated Tag tags = 2;

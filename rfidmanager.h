@@ -5,10 +5,11 @@
 #include <gz/transport/Node.hh>
 #include <gz/msgs/stringmsg.pb.h>
 
-#include <gz/custom_msgs/rfid_create_request.pb.h>
-#include <gz/custom_msgs/rfid_create_response.pb.h>
+#include <gz/custom_msgs/rfid_tag_list.pb.h>
 
 #include <sdf/sdf.hh>
+
+#include <map>
 
 /* RFID Manager class needs to do the following:
  *
@@ -43,10 +44,11 @@ class RFIDManagerPlugin :
 		gz::transport::Node node;
 
 		/* @brief Tag create service name */
-		std::string tagCreationServiceName = "/rfidtagcreate";
+		std::string tagCreationServiceName = "/rfid_tag_create";
 
 		/* @brief Tag remove service name */
-		std::string tagRemovalServiceName = "/rfidtagremove";
+		std::string tagRemovalServiceName = "/rfid_tag_remove";
+		std::string tagAllRemovalServiceName = "/rfid_tag_remove_all";
 
 		std::string tag_model_string;
 
@@ -56,27 +58,27 @@ class RFIDManagerPlugin :
 		/* @brief Index of the next created tag. Used to specify tag names */
 		uint64_t tagIndex{0};
 
+		// Callback methods
+		
 		/* @brief Callback method for tag creation requests */
-		bool tagCreateCallback(const gz::custom_msgs::RFIDCreateRequest& req, gz::custom_msgs::RFIDCreateResponse& reply);
+		bool tagCreateCallback(const gz::custom_msgs::RFIDTagList& req, gz::custom_msgs::RFIDTagList& reply);
 
 		// TODO Update to new message format
 		/* @brief Callback method for tag removal requests */
-		bool tagRemovalCallback(const gz::msgs::StringMsg& req, gz::msgs::StringMsg& reply);
+		bool tagRemovalCallback(const gz::custom_msgs::RFIDTagList& req, gz::custom_msgs::RFIDTagList& reply);
 
-		/* @brief Add a tag to the world in the provided location
-		 * @param pose The position of the tag. Orientation is ignored
-		 * @param tag_id An string containing some sort of identification of the tag. Optional. */
-		uint32_t addTag(gz::math::Pose3d pose, std::string tag_id);
+		/* @brief Callback method for removing all tags in simulation */
+		bool tagAllRemovalCallback(gz::custom_msgs::RFIDTagList& reply);
 
-		/* @brief Removes the specified tag from the world */
-		bool removeTag(std::string tag_id);
+	private:
+		/* @brief An object used to store tag entries in our database */
+		struct TagEntry {
+			std::string simname;
+			std::string data;
+		};
 
-		/* @brief Removes the specified tag from the world */
-		bool removeTag(uint32_t tag_id);
-
-		/* @brief Removes all tags from the world */
-		bool removeAllTags(void);
-
+		/* @brief A mapping from a tag UID to either the underlying data or the simulation name or the tag */
+		std::map<std::string, TagEntry> tagmap;
 
 };
 

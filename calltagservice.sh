@@ -1,13 +1,14 @@
 #!/bin/bash
 
-gz service -s /rfidtagcreate --reqtype gz.custom_msgs.RFIDCreateRequest --reptype gz.custom_msgs.RFIDCreateResponse\
+gz service -s /rfid_tag_create --reqtype gz.custom_msgs.RFIDTagList --reptype gz.custom_msgs.RFIDTagList\
 	-r 'tags:
 		[{
-			category: "cat 1",
+			uid: "x22434",
+			data: "some tag data"
 			pose: {position: {x: 0, y: 0, z: 0 }}
 		},
 		{
-			category: "cat 2",
+			uid: "x21989",
 			pose: {position: {x: 2, y: 3, z: -4 }}
 		}]'
 

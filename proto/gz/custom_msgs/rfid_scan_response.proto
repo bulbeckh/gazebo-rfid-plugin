@@ -12,8 +12,8 @@ message RFIDScanResponse
 	gz.msgs.Time time = 2;
 
 	message ScanResponse {
-		int32 tag_id = 1;
-		string tag_data = 2;
+		string uid = 1;
+		string data = 2;
 		double rssi = 3;
 	}
 
