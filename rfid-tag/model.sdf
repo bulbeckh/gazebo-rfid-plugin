@@ -7,14 +7,31 @@
 
 			<collision name="rfid-tag-collision">
 				<geometry>
-					<box><size>0.5 0.5 0.5</size></box>
+					<box><size>0.1 0.03 0.005</size></box>
 				</geometry>
 			</collision>
 
 			<visual name="rfid-tag-visual">
 				<geometry>
-					<box><size>0.5 0.5 0.5</size></box>
+					<box><size>0.1 0.03 0.005</size></box>
 				</geometry>
+				<material>
+					<double_sided>true</double_sided>
+					  <diffuse_map>model://rfid-tag/materials/textures/tag-texture.png</diffuse_map>
+
+  <!-- optional but recommended -->
+  <ambient>1 1 1 1</ambient>
+  <diffuse>1 1 1 1</diffuse>
+  <specular>0 0 0 1</specular>
+
+					<!--pbr>
+		  				<metal>
+							<albedo_map>model://rfid-tag/materials/textures/tag-texture.png</albedo_map>
+							<metalness>0.0</metalness>
+							<roughness>1.0</roughness>
+		  				</metal>
+					</pbr-->
+				</material>
 			</visual>
 
 			<inertial>

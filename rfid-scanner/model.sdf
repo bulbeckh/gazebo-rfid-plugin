@@ -7,16 +7,25 @@
 
 			<collision name="rfid-scanner-collision">
 				<geometry>
-					<box><size>0.2 0.2 0.2</size></box>
+					<mesh>
+						<uri>model://rfid-scanner/meshes/model1.obj</uri>
+					  <scale>1 1 1</scale>
+					</mesh>
 				</geometry>
 			</collision>
 
 			<visual name="rfid-scanner-visual">
 				<geometry>
-					<box><size>0.2 0.2 0.2</size></box>
+					<mesh>
+						<uri>model://rfid-scanner/meshes/model1.obj</uri>
+					  <scale>1 1 1</scale>
+					</mesh>
 				</geometry>
 				<material>
-					<ambient>1 0 0 1</ambient>
+					<ambient>1 1 1 1</ambient>
+					<diffuse>1 1 1 1</diffuse>
+					<specular>0.1 0.1 0.1 1</specular>
+					<emissive>0 0 0 1</emissive>
 				</material>
 			</visual>
 
