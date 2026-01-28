@@ -1,12 +1,12 @@
 # Gazebo RFID Scanner Plugin
 Implementation of an RFID scanner in Gazebo, with tag and antenna models.
 
-**Features**
+#### Features
 - Service for adding and removing tags from the simulation.
 - Models of RFID Antenna and RFID tags.
 - Realistic RFID scanning model based on Friis free-space-path-loss (FSPL).
 
-**RFID Model**
+#### RFID Model
 The model is based on the Friis transmission equation with FSPL. 
 
 
@@ -25,10 +25,12 @@ $$P_{read,r}=\sigma\left(\frac{P_{rx}-P_{rx,\text{ offset}}}{k_{rx}}\right)$$
 
 $$P_{read}=P_{read,t}\cdot P_{read,r}$$
 
-<img src="img/bsangle0-readprob.png" width="300" height="200">
+<img src="img/bsangle0-readprob.png" width="715" height="612">
 
-**See Also**
+#### Configuration
+TODO
+
+#### See Also
 - A detailed tutorial based on this plugin, available [here]().
 - Usage of this RFID plugin in an actual Gazebo simulation environment, [here]().
-
 
