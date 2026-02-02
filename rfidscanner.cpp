@@ -1,5 +1,6 @@
 
 #include "rfidscanner.h"
+#include "components/rfidtagcomponent.h"
 
 #include <gz/sim/Model.hh>
 #include <gz/sim/Entity.hh>
@@ -60,6 +61,18 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 	// Retrieve scanner orientation
 	gz::math::Quaterniond& scanner_orientation = sp->Rot();
 
+
+
+	// NOTE New iteration
+	ecm_internal->Each<RFIDTag>(
+			[&](const gz::sim::Entity &_entity, const RFIDTag *_tag) -> bool {
+				const auto &tag = _tag->Data();
+
+				gzwarn << "Found component/entity tag: " << tag.uid << "\n";
+
+				return true;
+			});
+
 	/* Here is where we iterate over all the tags in the simulation and check to see whether they meet the criteria
 	 * to be scanned.
 	 *
@@ -103,10 +116,8 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				// 2. Linear distance (scalar difference in position between scanner and tag)
 				// 3. Antenna gain (difference in angle between antenna boresight vector and scanner to tag vector)
 
-				// Calculate linear distance and scanner to tag quaternion
+				// Vector from scanner to tag in world frame
 				gz::math::Vector3d scanner_pose_vector = -1*(wp->CoordPositionSub(*sp));
-				gz::math::Quaterniond scanner_pose_quat;
-				scanner_pose_quat.SetFromAxisAngle(scanner_pose_vector.Normalized(), 0.0);
 
 				double tag_scanner_linear_distance = scanner_pose_vector.Length();
 
@@ -115,6 +126,12 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				double cos_theta = tag_orientation.Dot(scanner_orientation);
 
 				// Calculate dot product between scanner to tag vector and scanner orientation (for antenna gain calculation)
+				gz::math::Quaterniond scanner_pose_quat;
+				scanner_pose_quat.SetFromAxisAngle(
+						(-1*scanner_pose_vector).Cross(gz::math::Vector3d(1,0,0)),
+						acosf((-1*scanner_pose_vector).Dot(gz::math::Vector3d(1,0,0)))
+				);
+
 				double antenna_gain_angle = sp->Rot().Dot(scanner_pose_quat.Normalized());
 
 				if (true) {

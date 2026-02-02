@@ -90,16 +90,18 @@ void RFIDManagerPlugin::Configure(const gz::sim::Entity &_entity,
 void RFIDManagerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 					gz::sim::EntityComponentManager &_ecm)
 {
+	// TODO Add functionality to spawn tags from SDF file (rather than via service)
+	
+	/*
 	// On first run, we should find all loaded RFID tags and register the entities into the tag manager list
 	if (!rfidManagerInitialised) {
 
 		// Spawn tag
 		gzmsg << "Attempting spawn of tag\n";
 
-		// TODO Register all the tags that we found in the SDF
-
 		rfidManagerInitialised = true;
 	}
+	*/
 
 	// Create components for each tag not yet created
 	while (!tag_component_list.empty()) {
@@ -108,6 +110,7 @@ void RFIDManagerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 
 		gz::sim::Entity tag_entity{gz::sim::kNullEntity};
 
+		// 
 		_ecm.Each<gz::sim::components::Model, gz::sim::components::Name>(
 				[&](const gz::sim::Entity &_entity,
 					const gz::sim::components::Model *,
@@ -124,7 +127,7 @@ void RFIDManagerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 		if (tag_entity == gz::sim::kNullEntity) {
 			// NOTE If we have not yet loaded an entity (and hence unable to create a component), the most straightforward
 			// way to proceed is to ignore the remaining items and leave them for the next PreUpdate
-			gzwarn << "[RFIDManager] Unable to find entity. Skipping creation of remaining components during this PreUpdate.";
+			gzwarn << "Unable to find entity. Skipping creation of remaining components during this PreUpdate.\n";
 			break;
 		} else {
 			// Create component for this tag
@@ -138,7 +141,7 @@ void RFIDManagerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 				// attempted more than n times.
 				tag_component_list.pop_back();
 
-				gzwarn << "[RFIDManager] Created component for RFID Tag(" << tag_entity << ", " << te.uid << ", " << te.data << ")\n";
+				gzmsg << "Created RFID Tag component: (entity:" << tag_entity << ", uid: " << te.uid << ", data: " << te.data << ")\n";
 			}
 		}
 	}
@@ -148,8 +151,6 @@ void RFIDManagerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 
 bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& req, gz::msgs::Boolean& reply)
 {
-	gzmsg << "Tag create callback triggered\n";
-
 	gz::msgs::EntityFactory_V ef_v;
 	bool result;
 	gz::msgs::Boolean response;
@@ -164,13 +165,13 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& re
 
 		// Check that at minimum, our requested tag has both pose and a UID
 		if (!tag.has_pose() || tag.uid() == "") {
-			gzwarn << "[TagCreateCallback] Requested creation of tag but did not provide UID or pose. Skipping.\n";
+			gzwarn << "Requested creation of tag but did not provide UID or pose. Skipping.\n";
 			continue;
 		}
 
 		// Check that this tag UID has not already been requested
 		if (std::find(uids.begin(), uids.end(), tag.uid()) != uids.end()) {
-			gzwarn << "[TagCreateCallback] Requested creation of tag but UID is already used. Skipping.\n";
+			gzwarn << "Requested creation of tag but UID is already used. Skipping.\n";
 			continue;
 		}
 
@@ -191,7 +192,6 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& re
 		tag_entry.index = tagIndex;
 		tag_entry.uid = tag.uid();
 		tag_entry.data = tag.data();
-
 		tag_entry.pose = gz::msgs::Convert(tag.pose());
 
 		tag_component_list.push_back(tag_entry);
@@ -199,7 +199,7 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& re
 		// Add UID to uid array
 		uids.insert(tag.uid());
 
-		gzwarn << "[TagCreateCallback] Creating tag: Tag(" << tag_entry.index << ", " << tag_entry.uid << ", " << tag_entry.data << ", " << tag_entry.pose << ")\n";
+		gzmsg << "Created tag: (index: " << tag_entry.index << ", uid: " << tag_entry.uid << ", data: " << tag_entry.data << ", pose: " << tag_entry.pose << ")\n";
 
 		// Increment tag index
 		tagIndex += 1;
@@ -212,11 +212,7 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& re
 			response,
 			result);
 
-	if (executed && result) {
-		gzmsg << "Entity created\n";
-	} else {
-		gzmsg << "Entity creation failed\n";
-	}
+	if (!executed) gzwarn << "Failed to call entity creation service\n";
 
 	// Update the reply packet if we successully created all tags without error
 	reply.set_data(executed && result && tag_create_success ? true : false);
@@ -226,8 +222,6 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& re
 
 bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& req, gz::msgs::Boolean& reply)
 {
-	gzwarn << "Tag remove callback triggered\n";
-
 	std::vector<std::string> remove_list;
 
 	// TODO Check that request is correct format (i.e. has uid)
@@ -238,8 +232,6 @@ bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& r
 		auto tag = req.tags(i);
 
 		remove_list.push_back(tag.uid());
-
-		gzwarn << tag.uid() << "\n";
 	}
 
 	// Iterate through models in simulation
@@ -254,10 +246,6 @@ bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& r
 				});
 	*/
 
-	gzwarn << "[TagRemove] Found " << tag_entities.size() << " entities with tag components\n";
-	gzwarn << "[TagRemove] remove_list has  " << remove_list.size() << " entries\n";
-	gzwarn << "[RFIDManager] uids set has " << uids.size() << " entries, and stack has " << tag_component_list.size() << " components waiting to be created\n";
-
 	for (gz::sim::Entity t : tag_entities ) {
 		//auto model = gz::sim::Model(t);
 		//std::string model_name = model.Name(*ecm_internal);
@@ -269,7 +257,7 @@ bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& r
 		if (tag_component) { 
 			const auto& tag_component_data = tag_component->Data();
 
-			// If we find this tag in the list
+			// If we find this tag in the list of tags to be removed, then remove
 			if (std::find(remove_list.begin(), remove_list.end(), tag_component_data.uid) != remove_list.end()) {
 
 				// Tag found, request removal of this entity
@@ -288,6 +276,8 @@ bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& r
 				// Remove from UID list
 				if (result && executed) {
 					uids.erase(tag_component_data.uid);
+
+					gzmsg << "Removed tag: (uid: " << tag_component_data.uid << ")\n";
 				}
 			}
 		}
@@ -347,7 +337,7 @@ bool RFIDManagerPlugin::tagAllRemovalCallback(gz::msgs::Boolean& reply)
 						response,
 						result);
 
-				gzwarn << "Removing tag " << _tag->Data().uid << "\n";
+				gzmsg << "Removed tag: (uid: " << _tag->Data().uid << ")\n";
 				return true;
 			});
 
@@ -373,5 +363,5 @@ bool RFIDManagerPlugin::tagAllRemovalCallback(gz::msgs::Boolean& reply)
 	}
 	*/
 	
-	return false;
+	return true;
 }
