@@ -23,12 +23,6 @@
 		<static>true</static>
 	</include>
 
-	<include>
-		<uri>model://rfid-tag</uri>
-		<pose>5 5 1 0 0 0</pose>
-		<static>true</static>
-	</include>
-
     <scene>
       <ambient>0.5 0.5 0.5 1.0</ambient>
       <background>0.8 0.8 0.8</background>

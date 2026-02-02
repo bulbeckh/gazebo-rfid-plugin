@@ -4,12 +4,14 @@
 #include <gz/sim/SdfEntityCreator.hh>
 #include <gz/transport/Node.hh>
 #include <gz/msgs/stringmsg.pb.h>
+#include <gz/msgs/boolean.pb.h>
 
 #include <gz/custom_msgs/rfid_tag_list.pb.h>
 
 #include <sdf/sdf.hh>
 
-#include <map>
+#include <set>
+#include <vector>
 
 /* RFID Manager class needs to do the following:
  *
@@ -52,6 +54,10 @@ class RFIDManagerPlugin :
 
 		std::string tag_model_string;
 
+		// TODO There is a better way to identify models (entities) as tags than check the name. Perhaps use components
+		/* @brief The prefix used to identify a model as a tag model */
+		std::string tag_prefix{"rfid-tag-"};
+
 		/* @brief Whether we have initialised the tag manager */
 		bool rfidManagerInitialised{false};
 
@@ -61,24 +67,34 @@ class RFIDManagerPlugin :
 		// Callback methods
 		
 		/* @brief Callback method for tag creation requests */
-		bool tagCreateCallback(const gz::custom_msgs::RFIDTagList& req, gz::custom_msgs::RFIDTagList& reply);
+		bool tagCreateCallback(const gz::custom_msgs::RFIDTagList& req, gz::msgs::Boolean& reply);
 
 		// TODO Update to new message format
 		/* @brief Callback method for tag removal requests */
-		bool tagRemovalCallback(const gz::custom_msgs::RFIDTagList& req, gz::custom_msgs::RFIDTagList& reply);
+		bool tagRemovalCallback(const gz::custom_msgs::RFIDTagList& req, gz::msgs::Boolean& reply);
 
 		/* @brief Callback method for removing all tags in simulation */
-		bool tagAllRemovalCallback(gz::custom_msgs::RFIDTagList& reply);
+		bool tagAllRemovalCallback(gz::msgs::Boolean& reply);
+
+		/* @brief A pointer to the ECM. NOTE We can do this as long as we don't use it to modify the ecm (that should be done
+		 * during PreUpdate/PostUpdate) */
+		gz::sim::EntityComponentManager* ecm_internal{nullptr};
 
 	private:
 		/* @brief An object used to store tag entries in our database */
 		struct TagEntry {
-			std::string simname;
+			uint64_t index;
+			std::string uid;
 			std::string data;
+			gz::math::Pose3d pose;
 		};
 
-		/* @brief A mapping from a tag UID to either the underlying data or the simulation name or the tag */
-		std::map<std::string, TagEntry> tagmap;
+		/* @brief A list of tag components that have not yet been added to the simulation. Tags are added during the callback, but
+		 * the component creation is done during PreUpdate */
+		std::vector<TagEntry> tag_component_list;
+
+		/* @brief A set containing the UIDs of tags. Primarily used to check if a tag UID has already been created */
+		std::set<std::string> uids;
 
 };
 

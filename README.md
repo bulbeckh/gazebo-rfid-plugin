@@ -25,10 +25,19 @@ $$P_{read,r}=\sigma\left(\frac{P_{rx}-P_{rx,\text{ offset}}}{k_{rx}}\right)$$
 
 $$P_{read}=P_{read,t}\cdot P_{read,r}$$
 
-<img src="img/bsangle0-readprob.png" width="715" height="612">
+<p align="center">
+    <img src="img/bsangle0-readprob.png" width="50%">
+</p>
+
+More information on the RFID model is available [here]().
 
 #### Configuration
-TODO
+The SDF for this plugin has a number of parameters that can be configured.
+
+| Parameter | Default | Description |
+| --- | --- | --- |
+| `todo` | 0 | todo |
+| `todo` | 0 | todo |
 
 #### See Also
 - A detailed tutorial based on this plugin, available [here]().
