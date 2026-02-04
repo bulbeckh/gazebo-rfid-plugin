@@ -113,12 +113,12 @@ class RFIDScannerPlugin :
 		double tag_directional_gain{0};
 
 		/* @brief Power threshold at which transmit and received waves each have 50% read probability (for sigmoid) */
-		double tx_threshold_power{30};
-		double rx_threshold_power{30};
+		double tx_threshold_power{-15};
+		double rx_threshold_power{-70};
 
 		/* @brief Scaling parameter for rx and tx read probabilities */
-		double tx_read_scaling{1};
-		double rx_read_scaling{1};
+		double tx_read_scaling{2};
+		double rx_read_scaling{2};
 
 		// TODO Add LOS static terms
 	

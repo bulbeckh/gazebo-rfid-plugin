@@ -117,61 +117,58 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				// 3. Antenna gain (difference in angle between antenna boresight vector and scanner to tag vector)
 
 				// Vector from scanner to tag in world frame
-				gz::math::Vector3d scanner_pose_vector = -1*(wp->CoordPositionSub(*sp));
+				gz::math::Vector3d scanner_pose_vector = wp->CoordPositionSub(*sp);
 
 				double tag_scanner_linear_distance = scanner_pose_vector.Length();
 
+
 				// Calculate dot product between scanner orientation and tag orientation (for polarization calculation)
+				
+				// TODO NOTE This vector represents that orientation of the tag polarization in its default state. Currently,
+				// this is pointing towards the tag x-axis but this needs to be configured.
+				gz::math::Vector3d tag_local_ref(1,0,0);
+
+				// TODO Make sure this reconciles with our SDF model of antenna
+				// We use (1,0,0) because in the default orientation (no rotation) the scanner boresight is pointing in y-axis
+				gz::math::Vector3d antenna_local_ref(1,0,0);
+
 				gz::math::Quaterniond& tag_orientation = wp->Rot();
-				double cos_theta = tag_orientation.Dot(scanner_orientation);
+
+				double cos_theta = (tag_orientation.RotateVector(tag_local_ref)).Dot(scanner_orientation.RotateVector(antenna_local_ref));
 
 				// Calculate dot product between scanner to tag vector and scanner orientation (for antenna gain calculation)
-				gz::math::Quaterniond scanner_pose_quat;
-				scanner_pose_quat.SetFromAxisAngle(
-						(-1*scanner_pose_vector).Cross(gz::math::Vector3d(1,0,0)),
-						acosf((-1*scanner_pose_vector).Dot(gz::math::Vector3d(1,0,0)))
-				);
 
-				double antenna_gain_angle = sp->Rot().Dot(scanner_pose_quat.Normalized());
+				gz::math::Vector3d scanner_direction = scanner_orientation.RotateVector(antenna_local_ref);
 
-				if (true) {
-					gzwarn << model.Name(*ecm_internal) << "\n";
-					gzwarn << "    Scanner Pose3d: " << *sp << "\n";
-					gzwarn << "    Tag Pose3d: " << *wp << "\n";
-					gzwarn << "    Scanner-Tag Pose3d: " << scanner_pose_vector << "\n";
-					gzwarn << "    Scanner Quaternion: " << sp->Rot() << "\n";
-					gzwarn << "    Tag Quaternion: " << wp->Rot() << "\n";
-					gzwarn << "    Scanner to Tag Quat: " << scanner_pose_quat << "\n";
-					gzwarn << "    Polarization angle: " << cos_theta << "\n";
-					gzwarn << "    Antenna gain angle: " << antenna_gain_angle << "\n";
-					gzwarn << "    Linear distance (m): " << tag_scanner_linear_distance << "\n";
-				}
+				// Relative angle between antenna boresight and direction to tag
+				double antenna_gain_angle = std::acos(scanner_direction.Dot(scanner_pose_vector.Normalized()));
 
-				// Calculate tranmission power (cap at 5dB attenuation)
-				double antenna_gain = 6 - std::min(5.0, 12*std::pow(antenna_gain_angle / 3,2));
+
+				// TODO Retrieve defaults from SDF
+				// Calculate tranmission power
+				double antenna_gain = 6 - std::min(25.0, 6*std::pow(antenna_gain_angle,2));
 
 				// TODO This is wrong - the max should be applied before(?) the cosine
 				double loss_polarization = std::min(
 						polarization_max_loss,
 						-20*std::log10(
-							std::max(polarization_minimum_angle, std::abs(cos_theta))
+							std::abs(cos_theta)
 						)
 					);
 
 				// TODO Replace with the check for LOS / NLOS between reader and tag
 				double loss_path;
 				if (true) {
-					loss_path = 10*path_loss_los_gain*std::log10(tag_scanner_linear_distance / path_loss_scaling);
+					// TODO NOTE 31 dB is the default loss for a UHF reader operating at ~900MHz
+					loss_path = 31 + 10*path_loss_los_gain*std::log10(std::max(0.2, tag_scanner_linear_distance));
 				} else {
-					loss_path = 10*path_loss_nlos_gain*std::log10(tag_scanner_linear_distance / path_loss_scaling);
+					// TODO Add option for NLOS path loss
+					//loss_path = 31 + 10*path_loss_nlos_gain*std::log10(tag_scanner_linear_distance / path_loss_scaling);
 				}
 
-				double transmission_power = std::min(100.0,
-						std::max(-20.0, antenna_power + antenna_directional_gain + tag_directional_gain - loss_polarization - loss_path)
-						);
+				double transmission_power = antenna_power + antenna_gain + tag_directional_gain - loss_polarization - loss_path;
 
-				double received_power = std::min(100.0,
-						std::max(-20.0, antenna_power + antenna_directional_gain + tag_directional_gain - 2*(loss_polarization + loss_path)));
+				double received_power = antenna_power + antenna_gain + tag_directional_gain - 2*(loss_polarization + loss_path);
 
 				// Calculate read probabilities
 				double p_read_tx = sigmoid((transmission_power - tx_threshold_power) / tx_read_scaling);
@@ -179,6 +176,28 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				double p_read = p_read_tx*p_read_rx;
 
 				gzwarn << model.Name(*ecm_internal) << " " << *wp << " , power: " << transmission_power << ", p(read): " << p_read << "\n";
+
+				if (true) {
+					gzwarn << model.Name(*ecm_internal) << "\n";
+					gzwarn << "    Scanner Pose3d     (m,rad): " << *sp << "\n";
+					gzwarn << "    Tag Pose3d         (m,rad): " << *wp << "\n";
+					gzwarn << "    Scanner-Tag Pose3d (m,rad): " << scanner_pose_vector << "\n";
+					gzwarn << "    Scanner Quaternion        : " << sp->Rot() << "\n";
+					gzwarn << "    Scanner Eul               : " << sp->Rot().Euler() << "\n";
+					gzwarn << "    Tag Quaternion            : " << wp->Rot() << "\n";
+					gzwarn << "    Tag Eul                   : " << wp->Rot().Euler() << "\n";
+					gzwarn << "    Scanner-Tag Vec        (m): " << scanner_pose_vector << "\n";
+					gzwarn << "    Polarization angle   (rad): " << std::acos(cos_theta) << "\n";
+					gzwarn << "    Scanner direction vec  (m): " << scanner_direction << "\n";
+					gzwarn << "    Antenna gain angle (cos(rad)): " << antenna_gain_angle << "\n";
+					gzwarn << "    Linear distance   : " << tag_scanner_linear_distance << "\n";
+					gzwarn << " Transmission Stats\n";
+					gzwarn << "	   antenna gain: " << antenna_gain << "\n";
+					gzwarn << "	   loss polarization: " << loss_polarization << "\n";
+					gzwarn << "	   loss path: " << loss_path << "\n";
+					gzwarn << "	   transmission power: " << transmission_power << "\n";
+					gzwarn << "	   received power: " << received_power << "\n";
+				}
 
 				if ( distribution(gen) < p_read ) {
 					// Successful read - add tag to list of found tags

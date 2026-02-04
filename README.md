@@ -36,7 +36,7 @@ The SDF for this plugin has a number of parameters that can be configured.
 
 | Parameter | Default | Description |
 | --- | --- | --- |
-| `todo` | 0 | todo |
+| `antenna_power` | 30 (dBm) | Power delivered from the RFID scanner antenna. |
 | `todo` | 0 | todo |
 
 #### See Also
