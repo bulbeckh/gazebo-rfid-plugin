@@ -85,32 +85,44 @@ class RFIDScannerPlugin :
 		bool scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply);
 
 	private:
-		// Configuration parameters (set via SDF)
-
-		/* @brief The path loss factor when we have line of sight to the tag */
-		double path_loss_los_gain{2.2};
-
-		/* @brief The path loss factor when we do not have lin of sight to the tag */
-		double path_loss_nlos_gain{3};
-
-		/* @brief Path loss scaling factor */
-		double path_loss_scaling{5};
-
-		/* @brief The minimum cos(\theta) value that we should have (avoids excessive loss from polarization) */
-		double polarization_minimum_angle{0.05};
-
-		/* @brief Maximum loss from polarization angle (in dB) */
-		double polarization_max_loss{25};
+		// The following parameters are set via the SDF. Defaults are below.
 
 		/* @brief Antenna transmission gain (in dB) */
 		double antenna_power{30};
 
-		// TODO This will become dependent on the direction of the antenna
-		/* @brief Antenna (directional) gain */
-		double antenna_directional_gain{6};
+		// Path Loss Parameters
 
-		/* @brief Tag (directional) gain */
+		/* @brief The path loss factor when we have line of sight to the tag */
+		double path_loss_los_gain{2.2};
+
+		/* @brief Loss (in dB) with distance at 0m for a UHF reader (at ~900Mhz) */
+		double path_loss_base_loss{31};
+
+		/* @brief Minimum distance to use for path loss (avoids log singularities) */
+		double path_loss_min_distance{0.2};
+
+		// Polarization Loss Parameters
+
+		/* @brief Maximum loss from polarization angle (in dB) */
+		double polarization_max_loss{25};
+
+		// Antenna Gain Parameters
+
+		/* @brief Antenna (directional) gain peak (in dBi) */
+		double antenna_gain_peak{6};
+
+		/* @brief Antenna (directional) gain maximum loss (in dBi) */
+		double antenna_gain_max_loss{25};
+
+		/* @brief Antenna (directional) gain parabola scaling (in dBi) */
+		double antenna_gain_loss_scaling{6};
+
+		// Tag Gain Parameters
+
+		/* @brief Tag (directional) gain (in dBi) */
 		double tag_directional_gain{0};
+
+		// Read Distribution Parameters
 
 		/* @brief Power threshold at which transmit and received waves each have 50% read probability (for sigmoid) */
 		double tx_threshold_power{-15};
@@ -120,8 +132,6 @@ class RFIDScannerPlugin :
 		double tx_read_scaling{2};
 		double rx_read_scaling{2};
 
-		// TODO Add LOS static terms
-	
 	private:
 		/* @brief Sigmoid function implementation */
 		double sigmoid(double x);

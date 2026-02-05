@@ -144,30 +144,27 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				double antenna_gain_angle = std::acos(scanner_direction.Dot(scanner_pose_vector.Normalized()));
 
 
-				// TODO Retrieve defaults from SDF
 				// Calculate tranmission power
-				double antenna_gain = 6 - std::min(25.0, 6*std::pow(antenna_gain_angle,2));
+				//
+				// In default configuration, equation is: antenna_gain = 6 - min(25, 6*(\theta^{2}))
+				
+				double antenna_gain = antenna_gain_peak - std::min(antenna_gain_max_loss, antenna_gain_loss_scaling*std::pow(antenna_gain_angle,2));
 
-				// TODO This is wrong - the max should be applied before(?) the cosine
-				double loss_polarization = std::min(
-						polarization_max_loss,
-						-20*std::log10(
-							std::abs(cos_theta)
-						)
-					);
+				// Calculate polarization loss
+				//
+				// In default configuration, equation is: polarization_loss = min(25, log10(cos(\theta)))
+				
+				double loss_polarization = std::min(polarization_max_loss, -20*std::log10(std::abs(cos_theta)));
 
-				// TODO Replace with the check for LOS / NLOS between reader and tag
-				double loss_path;
-				if (true) {
-					// TODO NOTE 31 dB is the default loss for a UHF reader operating at ~900MHz
-					loss_path = 31 + 10*path_loss_los_gain*std::log10(std::max(0.2, tag_scanner_linear_distance));
-				} else {
-					// TODO Add option for NLOS path loss
-					//loss_path = 31 + 10*path_loss_nlos_gain*std::log10(tag_scanner_linear_distance / path_loss_scaling);
-				}
+				// TODO Add LOS / NLOS factor between reader and tag
+				// Calculate path loss
+				//
+				// In default configuration, equation is: path_loss = 31 + 10*2.2*los10(max(0.2, distance))
 
+				double loss_path = path_loss_base_loss + 10*path_loss_los_gain*std::log10(std::max(path_loss_min_distance, tag_scanner_linear_distance));
+
+				// Calculate tranmission and received power
 				double transmission_power = antenna_power + antenna_gain + tag_directional_gain - loss_polarization - loss_path;
-
 				double received_power = antenna_power + antenna_gain + tag_directional_gain - 2*(loss_polarization + loss_path);
 
 				// Calculate read probabilities
@@ -175,8 +172,7 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 				double p_read_rx = sigmoid((received_power - rx_threshold_power) / rx_read_scaling);
 				double p_read = p_read_tx*p_read_rx;
 
-				gzwarn << model.Name(*ecm_internal) << " " << *wp << " , power: " << transmission_power << ", p(read): " << p_read << "\n";
-
+				// DEBUG
 				if (true) {
 					gzwarn << model.Name(*ecm_internal) << "\n";
 					gzwarn << "    Scanner Pose3d     (m,rad): " << *sp << "\n";
@@ -199,9 +195,10 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 					gzwarn << "	   received power: " << received_power << "\n";
 				}
 
+				// Sample from distribution to determine if read was successful
 				if ( distribution(gen) < p_read ) {
-					// Successful read - add tag to list of found tags
 
+					// Successful read - add tag to list of found tags
 					auto* scanmessage = _reply.add_scan();
 
 					scanmessage->set_data(model.Name(*ecm_internal));
@@ -239,15 +236,19 @@ void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 	}
 
 	// Retrieve configuration from the sdf
-	if (_sdf->HasElement("path_loss_los_gain")) path_loss_los_gain = _sdf->Get<double>("path_loss_los_gain");
-	if (_sdf->HasElement("path_loss_nlos_gain")) path_loss_nlos_gain = _sdf->Get<double>("path_loss_nlos_gain");
-	if (_sdf->HasElement("path_loss_scaling")) path_loss_scaling = _sdf->Get<double>("path_loss_scaling");
+	
+	if (_sdf->HasElement("antenna_power")) antenna_power = _sdf->Get<double>("antenna_power");
 
-	if (_sdf->HasElement("polarization_minimum_angle")) polarization_minimum_angle = _sdf->Get<double>("polarization_minimum_angle");
+	if (_sdf->HasElement("path_loss_los_gain")) path_loss_los_gain = _sdf->Get<double>("path_loss_los_gain");
+	if (_sdf->HasElement("path_loss_base_loss")) path_loss_base_loss = _sdf->Get<double>("path_loss_base_loss");
+	if (_sdf->HasElement("path_loss_min_distance")) path_loss_min_distance = _sdf->Get<double>("path_loss_min_distance");
+
 	if (_sdf->HasElement("polarization_max_loss")) polarization_max_loss = _sdf->Get<double>("polarization_max_loss");
 
-	if (_sdf->HasElement("antenna_power")) antenna_power = _sdf->Get<double>("antenna_power");
-	/* TODO antenna_directional_gain will be replaced */
+	if (_sdf->HasElement("antenna_gain_peak")) antenna_gain_peak = _sdf->Get<double>("antenna_gain_peak");
+	if (_sdf->HasElement("antenna_gain_max_loss")) antenna_gain_max_loss = _sdf->Get<double>("antenna_gain_max_loss");
+	if (_sdf->HasElement("antenna_gain_loss_scaling")) antenna_gain_loss_scaling = _sdf->Get<double>("antenna_gain_loss_scaling");
+
 	if (_sdf->HasElement("tag_directional_gain")) tag_directional_gain = _sdf->Get<double>("tag_directional_gain");
 
 	if (_sdf->HasElement("tx_threshold_power")) tx_threshold_power = _sdf->Get<double>("tx_threshold_power");
