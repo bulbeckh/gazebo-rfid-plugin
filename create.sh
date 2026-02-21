@@ -5,16 +5,16 @@ gz service -s /rfid_tag_create --reqtype gz.custom_msgs.RFIDTagList --reptype gz
 		[{
 			uid: "x22434",
 			data: "some tag data",
-			pose: {position: {x: 5, y: 2, z: 3 }}
+			pose: {position: {x: 2, y: 1, z: 1 }}
 		},
 		{
 			uid: "asd22",
 			data: "nodata",
-			pose: {position: {x: -2, y: 13, z: 4}}
+			pose: {position: {x: 3, y: 1, z: 1 }}
 
 		},
 		{
 			uid: "oiwuer980w98e",
 			data: "some other tag data to be added",
-			pose: {position: {x: -5, y: 4, z: 5}}
+			pose: {position: {x: 1, y: 1, z: 1}}
 		}]'

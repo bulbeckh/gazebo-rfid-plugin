@@ -193,6 +193,10 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 					gzwarn << "	   loss path: " << loss_path << "\n";
 					gzwarn << "	   transmission power: " << transmission_power << "\n";
 					gzwarn << "	   received power: " << received_power << "\n";
+					gzwarn << " Read Stats\n";
+					gzwarn << "    tag read prob: " << p_read_tx << "\n";
+					gzwarn << "    antenna read prob: " << p_read_rx << "\n";
+					gzwarn << "    total read prob: " << p_read << "\n";
 				}
 
 				// Sample from distribution to determine if read was successful

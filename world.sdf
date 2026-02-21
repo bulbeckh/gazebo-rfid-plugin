@@ -58,10 +58,10 @@
           </plane>
 	  	</geometry>
 	    <material>
-			<ambient>0.8 0.8 0.8 1</ambient>
+			<!--ambient>0.8 0.8 0.8 1</ambient>
 			<diffuse>0.9 0.9 0.9 1</diffuse>
-			<specular>0 0 0 1</specular>
-			<emissive>0 0 0 1</emissive>
+			<specular>1 0 0 1</specular-->
+			<emissive>0.71 0.70 0.75 1</emissive>
 	  	</material>
       </visual>
     </link>

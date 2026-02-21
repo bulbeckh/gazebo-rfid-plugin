@@ -3,8 +3,6 @@
 	<model name="rfid-scanner">
 		<static>false</static>
 		<link name="rfid-scanner-link">
-			<pose>0 0 0 0 0 0</pose>
-
 			<collision name="rfid-scanner-collision">
 				<geometry>
 					<mesh>
@@ -15,6 +13,7 @@
 			</collision>
 
 			<visual name="rfid-scanner-visual">
+				<pose degrees="true">0 0 0 90 0 180</pose>
 				<geometry>
 					<mesh>
 						<uri>model://rfid-scanner/meshes/model1.obj</uri>

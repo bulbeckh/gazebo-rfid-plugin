@@ -1,13 +1,19 @@
-# Gazebo RFID Scanner Plugin
+# RFID Scanner Gazebo Plugin
 This Gazebo plugin simulates an RFID tag scanning system with a focus on realistic radio-frequency effects. It models antenna gain patterns, free-space path loss, and polarization mismatch to estimate received signal strength and tag readability during simulation. By accounting for relative pose, distance, and antenna orientation between readers and tags, the plugin provides a more realistic simulation of the RFID scan process, and is particularly useful in modelling retail environments (inventory monitoring, automated stock counts) and industrial environments (warehouse automation, mobile readers).
 
 `TODO Add photos`
+<p align="center">
+    <img src="img/scanner-im-out.png" width="100%">
+</p>
 
 ### Features
 - Service for adding and removing tags from the simulation.
 - Service for conducting scan including custom RFID scan result messages.
 - OBJ Models of RFID Antenna/Reader and RFID tags.
 - Realistic RFID scanning model based on Friis free-space-path-loss (FSPL).
+
+`TODO Add testing`
+`TODO Add information about compatibility between gazebo versions`
 
 ### Installation
 First, we build the plugin.
@@ -24,13 +30,41 @@ source setup_gz.sh
 gz sim -v4 world.sdf
 ```
 
-We should now have a running gazebo instance. In a second terminal, we can run the following bash scripts to add tags and conduct a scan.
+We should now have a running gazebo instance. In a second terminal (we also need to source setup.sh in this new terminal), we can run the following to add a set of tags (this is also what the `create.sh` script does):
 ```bash
-./create.sh
-./scan.sh
+gz service -s /rfid_tag_create --reqtype gz.custom_msgs.RFIDTagList --reptype gz.msgs.Boolean\
+	-r 'tags:
+		[{
+			uid: "x22434",
+			data: "some tag data",
+			pose: {position: {x: 5, y: 2, z: 3 }}
+		},
+		{
+			uid: "asd22",
+			data: "nodata",
+			pose: {position: {x: -2, y: 13, z: 4}}
+
+		},
+		{
+			uid: "oiwuer980w98e",
+			data: "some other tag data to be added",
+			pose: {position: {x: -5, y: 4, z: 5}}
+		}]'
+```
+
+And then to conduct the scan:
+```bash
+gz service -s /scan_request --reqtype gz.msgs.Empty --reptype gz.custom_msgs.RFIDScanResponse -r ''
 ```
 
 ### RFID Model
+There are three main factors that affect read probability in our model. Linear distance between tag and reader, the relative polarisation angle between the tag orientation and the scanner orientation and the relative angle between the antenna boresight and the vector from antenna to tag.
+
+<p align="center">
+    <img src="img/rfid-scan-diagram.png" width="50%">
+</p>
+
+
 The model is based on the Friis transmission equation with FSPL. 
 
 
