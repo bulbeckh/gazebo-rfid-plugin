@@ -1,7 +1,6 @@
 # RFID Scanner Gazebo Plugin
 This Gazebo plugin simulates an RFID tag scanning system with a focus on realistic radio-frequency effects. It models antenna gain patterns, free-space path loss, and polarization mismatch to estimate received signal strength and tag readability during simulation. By accounting for relative pose, distance, and antenna orientation between readers and tags, the plugin provides a more realistic simulation of the RFID scan process, and is particularly useful in modelling retail environments (inventory monitoring, automated stock counts) and industrial environments (warehouse automation, mobile readers).
 
-`TODO Add photos`
 <p align="center">
     <img src="img/scanner-im-out.png" width="100%">
 </p>
@@ -61,7 +60,7 @@ gz service -s /scan_request --reqtype gz.msgs.Empty --reptype gz.custom_msgs.RFI
 There are three main factors that affect read probability in our model. Linear distance between tag and reader, the relative polarisation angle between the tag orientation and the scanner orientation and the relative angle between the antenna boresight and the vector from antenna to tag.
 
 <p align="center">
-    <img src="img/rfid-scan-diagram.png" width="50%">
+    <img src="img/rfid-scan-diagram.png" width="100%">
 </p>
 
 
@@ -84,7 +83,7 @@ $$P_{read,r}=\sigma\left(\frac{P_{rx}-P_{rx,\text{ offset}}}{k_{rx}}\right)$$
 $$P_{read}=P_{read,t}\cdot P_{read,r}$$
 
 <p align="center">
-    <img src="img/bsangle0-readprob.png" width="50%">
+    <img src="img/readprob-2.png" width="100%">
 </p>
 
 More information on the RFID model is available [here]().
