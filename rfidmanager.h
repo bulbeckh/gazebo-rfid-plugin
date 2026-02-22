@@ -52,6 +52,7 @@ class RFIDManagerPlugin :
 		std::string tagRemovalServiceName = "/rfid_tag_remove";
 		std::string tagAllRemovalServiceName = "/rfid_tag_remove_all";
 
+		/* @brief String containing the full SDF code of the tag. Loaded during Configure */
 		std::string tag_model_string;
 
 		// TODO There is a better way to identify models (entities) as tags than check the name. Perhaps use components
@@ -95,6 +96,9 @@ class RFIDManagerPlugin :
 
 		/* @brief A set containing the UIDs of tags. Primarily used to check if a tag UID has already been created */
 		std::set<std::string> uids;
+
+		/* @brief Flag to determine if we have correctly loaded SDF */
+		bool tag_sdf_loaded{false};
 
 };
 

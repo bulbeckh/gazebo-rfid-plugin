@@ -209,7 +209,7 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 
 					// TODO Add these fields
 					scanmessage->set_uid("5");
-					scanmessage->set_rssi(100.0);
+					scanmessage->set_rssi(received_power);
 				}
 			}
 		}

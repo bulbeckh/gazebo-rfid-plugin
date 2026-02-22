@@ -60,7 +60,7 @@ gz service -s /scan_request --reqtype gz.msgs.Empty --reptype gz.custom_msgs.RFI
 There are three main factors that affect read probability in our model. Linear distance between tag and reader, the relative polarisation angle between the tag orientation and the scanner orientation and the relative angle between the antenna boresight and the vector from antenna to tag.
 
 <p align="center">
-    <img src="img/rfid-scan-diagram.png" width="100%">
+    <img src="img/rfid-scan-diagram.png" width="70%">
 </p>
 
 
