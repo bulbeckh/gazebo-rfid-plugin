@@ -232,61 +232,68 @@ bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& r
 	// Get a list of UIDs of tags to be removed
 	for (uint32_t i=0;i<req.tags_size();i++) {
 		auto tag = req.tags(i);
+
+		// If we were not provided a uid, then skip the tag
+		if (tag.uid() == "") {
+			gzwarn << "Requested to remove a tag but did not provide a uid. Skipping tag\n";
+		}
+
 		remove_list.push_back(tag.uid());
 	}
 
-	// TODO Move to first option as it is cleaner
-	// OPTION 1 - Cleaner
-	/* NOTE Alternative way to do the below is using the ecm Each function
+	// Iterate through all tags and if they appear in the list of tags to be removed, then request removal of entity
 	ecm_internal->Each<RFIDTag>(
 			[&](const gz::sim::Entity &_entity, const RFIDTag *_tag) -> bool {
+
 				const auto &tag = _tag->Data();
+
+				auto remove_tag_idx = std::find(remove_list.begin(), remove_list.end(), tag.uid);
+
+				if (remove_tag_idx != remove_list.end()) {
+					// Tag found - request removal of entity and then remove from remove_list vector
+
+					// TODO
+					// Tag found, request removal of this entity
+					gz::msgs::Entity entity_msg;
+					bool result;
+					gz::msgs::Boolean response;
+
+					entity_msg.set_id(_entity);
+
+					bool executed = node.Request("/world/rfid-test-world/remove",
+							entity_msg,
+							1000,
+							response,
+							result);
+
+					// Remove from UID list
+					if (result && executed) {
+						uids.erase(tag.uid);
+						gzmsg << "Removed tag: (uid: " << tag.uid << ")\n";
+					} else {
+						tag_remove_success = false;
+						gzwarn << "Failed to remove tag: " << tag.uid << "\n";
+					}
+
+					// Remove from remove_list
+					remove_list.erase(remove_tag_idx);
+				}
+
 				gzwarn << "Found component/entity tag: " << tag.uid << "\n";
 				return true;
-				});
-	*/
+			});
 
+	// Confirm that we have successfully removed all tags
+	if (remove_list.size() != 0) {
+		tag_remove_success = false;
 
-	// OPTION 2
-	
-	// Iterate through models in simulation
-	auto tag_entities = ecm_internal->EntitiesByComponents(gz::sim::components::Model());
-	for (gz::sim::Entity t : tag_entities ) {
-
-		// Retrieve RFID tag component
-		auto* tag_component = ecm_internal->Component<RFIDTag>(t);
-
-		if (tag_component) { 
-			const auto& tag_component_data = tag_component->Data();
-
-			// If we find this tag in the list of tags to be removed, then remove
-			if (std::find(remove_list.begin(), remove_list.end(), tag_component_data.uid) != remove_list.end()) {
-
-				// Tag found, request removal of this entity
-				gz::msgs::Entity entity_msg;
-				bool result;
-				gz::msgs::Boolean response;
-
-				entity_msg.set_id(t);
-
-				bool executed = node.Request("/world/rfid-test-world/remove",
-						entity_msg,
-						1000,
-						response,
-						result);
-
-				// Remove from UID list
-				if (result && executed) {
-					uids.erase(tag_component_data.uid);
-					gzmsg << "Removed tag: (uid: " << tag_component_data.uid << ")\n";
-				} else {
-					tag_remove_success = false;
-					gzwarn << "Failed to remove tag: " << tag_component_data.uid << "\n";
-				}
-			}
+		gzwarn << "Requested removal of tags but was unable to find the following tags: ";
+		for (auto t : remove_list) {
+			gzwarn << t << " ";
 		}
+		gzwarn << "\n";
 	}
-	
+
 	// Update reply
 	reply.set_data(tag_remove_success);
 
