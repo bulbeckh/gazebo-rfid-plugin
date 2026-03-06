@@ -90,6 +90,9 @@ class RFIDManagerPlugin :
 			gz::math::Pose3d pose;
 		};
 
+		/* @brief Store of the world name for the tag creation/removal calls */
+		std::string world_name;
+
 		/* @brief A list of tag components that have not yet been added to the simulation. Tags are added during the callback, but
 		 * the component creation is done during PreUpdate */
 		std::vector<TagEntry> tag_component_list;

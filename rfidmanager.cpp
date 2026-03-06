@@ -3,6 +3,7 @@
 
 #include "components/rfidtagcomponent.h"
 #include <gz/sim/components/Factory.hh>
+#include <gz/sim/components/World.hh>
 
 #include <sdf/Element.hh>
 
@@ -40,6 +41,24 @@ void RFIDManagerPlugin::Configure(const gz::sim::Entity &_entity,
 {
 	// Store the ECM reference for internal use later
 	ecm_internal = &_ecm;
+
+	// Retrieve the name of the world that this plugin is in
+	gz::sim::Entity worldEntity = _ecm.EntityByComponents(gz::sim::components::World());
+	if (worldEntity != gz::sim::kNullEntity)
+    {
+      auto nameComp = _ecm.Component<gz::sim::components::Name>(worldEntity);
+      if (nameComp)
+      {
+		  // Store world name
+		  world_name = nameComp->Data();
+      } else {
+		  gzwarn << "[RFIDManager] Found world entity but did not find name component. Will cause issues when spawning tags\n";
+	  }
+    } else {
+		gzwarn << "[RFIDManager] Couldn't find world entity during Configure. Will cause issues when spawning tags\n";
+	}
+
+	gzmsg << "[RFIDManager] World name: " << world_name << "\n";
 
 	// Advertise tag creation service
 	if (!this->node.Advertise<class RFIDManagerPlugin, gz::custom_msgs::RFIDTagList, gz::msgs::Boolean>(this->tagCreationServiceName,
@@ -207,7 +226,7 @@ bool RFIDManagerPlugin::tagCreateCallback(const gz::custom_msgs::RFIDTagList& re
 	}
 
 	// Call entity creation service
-	bool executed = node.Request("/world/rfid-test-world/create_multiple",
+	bool executed = node.Request("/world/" + world_name + "/create_multiple",
 			ef_v,
 			1000,
 			response,
@@ -260,7 +279,7 @@ bool RFIDManagerPlugin::tagRemovalCallback(const gz::custom_msgs::RFIDTagList& r
 
 					entity_msg.set_id(_entity);
 
-					bool executed = node.Request("/world/rfid-test-world/remove",
+					bool executed = node.Request("/world/" + world_name + "/remove",
 							entity_msg,
 							1000,
 							response,
@@ -314,7 +333,7 @@ bool RFIDManagerPlugin::tagAllRemovalCallback(gz::msgs::Boolean& reply)
 
 				entity_msg.set_id(_entity);
 
-				bool executed = node.Request("/world/rfid-test-world/remove",
+				bool executed = node.Request("/world/" + world_name + "/remove",
 						entity_msg,
 						1000,
 						response,
