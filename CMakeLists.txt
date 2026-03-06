@@ -22,24 +22,24 @@ set(GZ_SIM_VER ${gz-sim8_VERSION_MAJOR})
 
 ## Add custom RFID messages
 set(MSGS_PROTOS
-	${CMAKE_SOURCE_DIR}/proto/gz/custom_msgs/rfid_tag_list.proto
-	${CMAKE_SOURCE_DIR}/proto/gz/custom_msgs/rfid_scan_response.proto
+	${CMAKE_CURRENT_SOURCE_DIR}/proto/gz/custom_msgs/rfid_tag_list.proto
+	${CMAKE_CURRENT_SOURCE_DIR}/proto/gz/custom_msgs/rfid_scan_response.proto
 )
 
 gz_msgs_generate_messages(
 	TARGET msgs
 	PROTO_PACKAGE "gz.custom_msgs"
-	MSGS_PATH ${CMAKE_SOURCE_DIR}/proto
+	MSGS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/proto
 	MSGS_PROTOS ${MSGS_PROTOS}
 	DEPENDENCIES gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
 )
 
 add_library(rfidPlugin SHARED
-	rfidmanager.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rfidmanager.cpp
 )
 
 add_library(rfidScanner SHARED
-	rfidscanner.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rfidscanner.cpp
 )
 
 target_link_libraries(rfidPlugin PRIVATE
