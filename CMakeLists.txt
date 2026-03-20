@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-project(Gazebo-RFID-Plugin)
+project(gazebo_rfid_plugin)
+
+find_package(ament_cmake REQUIRED)
 
 find_package(gz-cmake3 REQUIRED)
 set(GZ_CMAKE_VER ${gz-cmake3_VERSION_MAJOR})
@@ -51,4 +53,19 @@ target_link_libraries(rfidScanner PRIVATE
 	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
 	${PROJECT_NAME}-msgs
 )
+
+install(DIRECTORY rfid-scanner rfid-tag
+	DESTINATION share/${PROJECT_NAME}
+)
+
+install(TARGETS rfidPlugin rfidScanner
+	LIBRARY DESTINATION lib
+)
+
+ament_environment_hooks(
+	"${CMAKE_CURRENT_SOURCE_DIR}/hooks/gazebo_rfid_plugin_pkg.dsv.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/hooks/gazebo_rfid_plugin_pkg.sh.in"
+)
+
+ament_package()
 
