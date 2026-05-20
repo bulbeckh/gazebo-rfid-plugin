@@ -8,7 +8,8 @@
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <depend>gz-cmake3</depend>
+  <!-- NOTE Temporarily disabled this dependency. I believe it should be gz-cmake-vendor -->
+  <!--depend>gz-cmake3</depend-->
 
   <export>
 	  <build_type>ament_cmake</build_type>
