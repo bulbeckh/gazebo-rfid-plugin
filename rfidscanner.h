@@ -4,6 +4,7 @@
 #include <gz/sim/Link.hh>
 #include <gz/sim/SdfEntityCreator.hh>
 #include <gz/transport/Node.hh>
+#include <gz/msgs/boolean.pb.h>
 
 #include <chrono>
 #include <random>
@@ -53,12 +54,20 @@ class RFIDScannerPlugin :
 		/* @brief Node for the scan service */
 		gz::transport::Node node;
 
+		/* @brief Name of this scanner model. Should be unique amongst scanner models. Used to namespace topics */
+		std::string scanner_model_name;
+
 		// TODO There is a better way to identify models (entities) as tags than check the name. Perhaps use components
 		/* @brief The prefix used to identify a model as a tag model */
 		std::string tag_prefix{"rfid-tag-"};
 
 		/* @brief Service name to use for scan request */
 		std::string scan_service_name{"scan_request"};
+
+		// TODO External interface for ros2 integration
+		/* @brief Topic names for external ros2 scan interface */
+		std::string external_request_topic_name{"ros2_external_do_scan_request"};
+		std::string external_result_topic_name{"ros2_external_do_scan_result"};
 
 		/* @brief Whether we have initialised all the necessary elements for the scanner to function */
 		bool scanner_initialised{false};
@@ -77,12 +86,21 @@ class RFIDScannerPlugin :
 		int64_t simulation_time_sec;
 		int32_t simulation_time_nsec;
 
+		/* @brief Complete a round of RFID scanning and populate the RFIDScanResponse message */
+		bool doScan(gz::custom_msgs::RFIDScanResponse& _reply);
+
 	private:
 		/* @brief Flag for whether we need to a do a scan during next PreUpdate */
 		bool do_scan_flag{false};
 
 		/* @brief Callback function for a request to do a scan */
 		bool scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply);
+
+		// TODO External interface for ros2 integration
+		/* @brief Callback function for external scan reqeust */
+		void externalScanRequestCallback(const gz::msgs::Boolean& _msg);
+
+		gz::transport::Node::Publisher external_scan_result_publisher;
 
 	private:
 		// The following parameters are set via the SDF. Defaults are below.

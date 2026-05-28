@@ -62,6 +62,11 @@ install(TARGETS rfidPlugin rfidScanner
 	LIBRARY DESTINATION lib
 )
 
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-msgs.gz_desc
+	DESTINATION share/${PROJECT_NAME}
+)
+
 ament_environment_hooks(
 	"${CMAKE_CURRENT_SOURCE_DIR}/hooks/gazebo_rfid_plugin_pkg.dsv.in"
 	"${CMAKE_CURRENT_SOURCE_DIR}/hooks/gazebo_rfid_plugin_pkg.sh.in"
