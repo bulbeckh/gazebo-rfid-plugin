@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.10.2)
 project(gazebo_rfid_plugin)
 
 find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(builtin_interfaces REQUIRED)
 
 find_package(gz-cmake3 REQUIRED)
 set(GZ_CMAKE_VER ${gz-cmake3_VERSION_MAJOR})
@@ -36,6 +39,15 @@ gz_msgs_generate_messages(
 	DEPENDENCIES gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
 )
 
+rosidl_generate_interfaces(${PROJECT_NAME}
+	"msg/ScanResponse.msg"
+	"msg/RFIDScanResponse.msg"
+	"srv/RFIDScan.srv"
+	DEPENDENCIES
+	std_msgs
+	builtin_interfaces
+)
+
 add_library(rfidPlugin SHARED
 	${CMAKE_CURRENT_SOURCE_DIR}/rfidmanager.cpp
 )
@@ -62,8 +74,15 @@ install(TARGETS rfidPlugin rfidScanner
 	LIBRARY DESTINATION lib
 )
 
-install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-msgs.gz_desc
+install(TARGETS ${PROJECT_NAME}-msgs
+	EXPORT export_${PROJECT_NAME}-msgs
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-msgs.gz_desc
 	DESTINATION share/${PROJECT_NAME}
 )
 
@@ -71,6 +90,11 @@ ament_environment_hooks(
 	"${CMAKE_CURRENT_SOURCE_DIR}/hooks/gazebo_rfid_plugin_pkg.dsv.in"
 	"${CMAKE_CURRENT_SOURCE_DIR}/hooks/gazebo_rfid_plugin_pkg.sh.in"
 )
+
+ament_export_targets(export_${PROJECT_NAME}-msgs HAS_LIBRARY_TARGET)
+ament_export_dependencies(gz-msgs10)
+
+ament_export_dependencies(rosidl_default_runtime std_msgs builtin_interfaces)
 
 ament_package()
 

@@ -222,6 +222,9 @@ void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 	this->scanner_model_name = scanner_model.Name(_ecm);
 	gzmsg << "Found scanner_model name: " << this->scanner_model_name << "\n";
 
+	// TODO Need to fix the above - ROS2 parameter (and service) bridges won't work with topics with hyphens
+	this->scanner_model_name = "rfid_scanner";
+
 	// Store the entity for later
 	scanner_entity = _entity;
 
