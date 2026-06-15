@@ -22,7 +22,7 @@ void RFIDTagPlugin::Configure(const gz::sim::Entity &_entity,
 	if (_sdf->HasElement("uid")) tag_uid = _sdf->Get<std::string>("uid");
 	if (_sdf->HasElement("data")) tag_data = _sdf->Get<std::string>("data");
 
-	gzmsg << "Found SDF Tag: Tag(" << tag_uid << ", " << tag_data << ")\n";
+	gzmsg << "Found SDF Tag: Tag(" << tag_uid << ", " << tag_data << ") with entity: " << _entity << "\n";
 	
 	// Create component for this tag
 	auto* componentptr = _ecm.CreateComponent(_entity, RFIDTag({tag_uid, tag_data}));

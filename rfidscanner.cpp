@@ -9,6 +9,8 @@
 #include <gz/math/Pose3.hh>
 
 #include <gz/sim/components/Model.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/sim/Util.hh>
 
 #include <gz/msgs/stringmsg.pb.h>
 
@@ -66,13 +68,39 @@ bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
 			[&](const gz::sim::Entity &_entity, const RFIDTag *_tag) -> bool {
 
 				const auto &tag = _tag->Data();
+				
+				/* TODO This section makes assumptions about how we are structuring our tag object. Currently,
+				 * we load tags either via a create service call or via the SDF. In either case, we want
+				 * the tag content (the uid and the stored data) to by dynamically created (potentially)
+				 * at runtime, so our tag objects have the following structure:
+				 *
+				 * <model>
+				 * 	<include>
+				 * 		<uri>...
+				 * 		<name>...
+				 * 	</include>
+				 * 	<plugin filename="librfidPlugin" name="RFIDTagPlugin">
+				 * 		<uid>...</uid>
+				 * 		<data>...</data>
+				 * 	</plugin>
+				 * </model>
+				 *
+				 * Our original implementation (which the below code was mostly written for) instead
+				 * assumed that we have a single model which itself has a link which we use to extract
+				 * the WorldPose.
+				 */
 
 				auto model = gz::sim::Model(_entity);
 				gz::sim::Entity model_link_entity = model.CanonicalLink(*ecm_internal);
 				gz::sim::Link link = gz::sim::Link(model_link_entity);
 
 				// Retrieve pose of tag
-				auto wp = link.WorldPose(*ecm_internal);
+				//auto wp = link.WorldPose(*ecm_internal);
+				// TODO This is so terrible - a very temporary hack to avoid changing type of wp from std::optional in if body
+				//auto wp = ecm_internal->Component<gz::sim::components::Pose>(_entity)->Data().value();
+				auto wp_val = gz::sim::worldPose(_entity, *ecm_internal);
+				auto* wp = &wp_val;
+
 
 				if (wp && sp) {
 					// To estimate rssi (and read probability), we need both the scanner pose and the tag pose
@@ -171,7 +199,7 @@ bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
 					}
 				}
 
-				gzmsg << "Found component/entity tag: " << tag.uid << "\n";
+				gzmsg << "Found component/entity tag: " << tag.uid << "/" << _entity << "\n";
 
 				return true;
 			});
