@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gz/sim/components/Component.hh>
+#include <gz/sim/components/Factory.hh>
 
 /* This component holds our information about each RFID tag is and is added to each tag model entity during
  * the RFIDTagManager PreUpdate method */
@@ -23,3 +24,4 @@ struct RFIDTagData
 
 using RFIDTag = gz::sim::components::Component<RFIDTagData, class RFIDTagTag>;
 
+GZ_SIM_REGISTER_COMPONENT("RFIDTag", RFIDTag)

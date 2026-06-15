@@ -56,6 +56,10 @@ add_library(rfidScanner SHARED
 	${CMAKE_CURRENT_SOURCE_DIR}/rfidscanner.cpp
 )
 
+add_library(rfidTag SHARED
+	${CMAKE_CURRENT_SOURCE_DIR}/rfidtag.cpp
+)
+
 target_link_libraries(rfidPlugin PRIVATE
 	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
 	${PROJECT_NAME}-msgs
@@ -66,11 +70,16 @@ target_link_libraries(rfidScanner PRIVATE
 	${PROJECT_NAME}-msgs
 )
 
+target_link_libraries(rfidTag PRIVATE
+	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
+	${PROJECT_NAME}-msgs
+)
+
 install(DIRECTORY rfid-scanner rfid-tag
 	DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS rfidPlugin rfidScanner
+install(TARGETS rfidPlugin rfidScanner rfidTag
 	LIBRARY DESTINATION lib
 )
 

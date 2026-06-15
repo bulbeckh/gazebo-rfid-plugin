@@ -64,6 +64,7 @@ class RFIDScannerPlugin :
 		/* @brief Service name to use for scan request */
 		std::string scan_service_name{"scan_request"};
 
+		// TODO remove all these external topic-based interfaces as we now have a dedicated ros-gz scan service bridge
 		// TODO External interface for ros2 integration
 		/* @brief Topic names for external ros2 scan interface */
 		std::string external_request_topic_name{"ros2_external_do_scan_request"};

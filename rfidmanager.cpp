@@ -27,8 +27,6 @@ GZ_ADD_PLUGIN(RFIDManagerPlugin,
 		RFIDManagerPlugin::ISystemPreUpdate
 )
 
-GZ_SIM_REGISTER_COMPONENT("RFIDTag", RFIDTag)
-
 RFIDManagerPlugin::RFIDManagerPlugin(void)
 {
 
