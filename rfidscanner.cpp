@@ -38,8 +38,6 @@ double RFIDScannerPlugin::sigmoid(double x)
 
 bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply)
 {
-	// The main reason why this is a simple wrapper is because we also need to now
-	// call doScan from the external ros2 topic callback
 	return doScan(_reply);
 }
 
@@ -208,38 +206,6 @@ bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
 }
 
 
-void RFIDScannerPlugin::externalScanRequestCallback(const gz::msgs::Boolean& /* _msg */)
-{
-	// If we receive an external scan request, we need to do the scan and then 
-	// serialize the structure, then send back to the external topic
-	
-	// TODO
-	
-	gz::custom_msgs::RFIDScanResponse reply;
-
-	if (!doScan(reply)) {
-		gzwarn << "Failed to run RFID scan (external ROS2 interface)\n";
-	}
-
-	// Serialize scan response to string
-	std::string scan_response_serialized;
-	std::string scan_response_serialized_b64;
-	reply.SerializeToString(&scan_response_serialized);
-
-	gz::common::Base64::Encode(
-			scan_response_serialized.c_str(),
-			scan_response_serialized.length(),
-			scan_response_serialized_b64);
-
-	gz::msgs::StringMsg target_msg;
-	target_msg.set_data(scan_response_serialized_b64);
-
-	// Publish to topic
-	this->external_scan_result_publisher.Publish(target_msg);
-
-	return;
-}
-
 void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 					const std::shared_ptr<const sdf::Element> &_sdf,
 					gz::sim::EntityComponentManager &_ecm,
@@ -270,30 +236,6 @@ void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 		return;
 	} else {
 		gzmsg << "Created RFID scan service\n";
-	}
-
-	// TODO External interface for ros2 integration
-	// Subscribe to external scan topic (will be bridge through ros_gz_bridge)
-	if (!this->node.Subscribe<class RFIDScannerPlugin,
-			gz::msgs::Boolean>(
-				this->scanner_model_name + "/" + this->external_request_topic_name,
-				&RFIDScannerPlugin::externalScanRequestCallback,
-				this)
-	   		) {
-		gzwarn << "Failed to create external (ROS2) RFID scan service\n";
-	} else {
-		gzmsg << "Created external RFID scan request topic\n";
-	}
-
-	// TODO External interface for ros2 integration
-	// Advertise a new topic for external (ROS2) RFID scan response
-	this->external_scan_result_publisher = this->node.Advertise<gz::msgs::StringMsg>(
-				this->scanner_model_name + "/" + this->external_result_topic_name);
-			
-	if (!this->external_scan_result_publisher) {
-		gzwarn << "Failed to create external (ROS2) RFID scan publisher\n";
-	} else {
-		gzmsg << "Created external RFID scan result topic\n";
 	}
 
 	// Retrieve configuration from the sdf

@@ -64,12 +64,6 @@ class RFIDScannerPlugin :
 		/* @brief Service name to use for scan request */
 		std::string scan_service_name{"scan_request"};
 
-		// TODO remove all these external topic-based interfaces as we now have a dedicated ros-gz scan service bridge
-		// TODO External interface for ros2 integration
-		/* @brief Topic names for external ros2 scan interface */
-		std::string external_request_topic_name{"ros2_external_do_scan_request"};
-		std::string external_result_topic_name{"ros2_external_do_scan_result"};
-
 		/* @brief Whether we have initialised all the necessary elements for the scanner to function */
 		bool scanner_initialised{false};
 
@@ -96,12 +90,6 @@ class RFIDScannerPlugin :
 
 		/* @brief Callback function for a request to do a scan */
 		bool scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply);
-
-		// TODO External interface for ros2 integration
-		/* @brief Callback function for external scan reqeust */
-		void externalScanRequestCallback(const gz::msgs::Boolean& _msg);
-
-		gz::transport::Node::Publisher external_scan_result_publisher;
 
 	private:
 		// The following parameters are set via the SDF. Defaults are below.
