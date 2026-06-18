@@ -12,11 +12,9 @@
 
 #include <sdf/sdf.hh>
 
-/* This is a basic RFID Tag class, with the only functionality being to add a Component to the associated model */
 class RFIDTagPlugin :
 	public gz::sim::System,
-	public gz::sim::ISystemConfigure,
-	public gz::sim::ISystemPreUpdate
+	public gz::sim::ISystemConfigure
 {
 
 	public:
@@ -28,14 +26,14 @@ class RFIDTagPlugin :
 					gz::sim::EntityComponentManager &_ecm,
 					gz::sim::EventManager &_eventMgr) final;
 
-		void PreUpdate(const gz::sim::UpdateInfo &_info,
-					gz::sim::EntityComponentManager &_ecm) final;
-
 	private:
-		/* @brief Whether we have added a component to the ECM for this tag */
+		/* @brief Whether we have successfully added a component to the ECM for this tag */
 		bool _component_added{false};
 
+		/* @brief UID associated with this tag */
 		std::string tag_uid;
+
+		/* @brief Data stored on this tag. Limited to 512 bytes */
 		std::string tag_data;
 
 

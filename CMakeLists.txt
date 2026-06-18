@@ -48,21 +48,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 	builtin_interfaces
 )
 
-add_library(rfidPlugin SHARED
-	${CMAKE_CURRENT_SOURCE_DIR}/rfidmanager.cpp
-)
-
 add_library(rfidScanner SHARED
-	${CMAKE_CURRENT_SOURCE_DIR}/rfidscanner.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rfidscanner.cpp
 )
 
 add_library(rfidTag SHARED
-	${CMAKE_CURRENT_SOURCE_DIR}/rfidtag.cpp
-)
-
-target_link_libraries(rfidPlugin PRIVATE
-	gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
-	${PROJECT_NAME}-msgs
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rfidtag.cpp
 )
 
 target_link_libraries(rfidScanner PRIVATE
@@ -79,7 +70,7 @@ install(DIRECTORY rfid-scanner rfid-tag
 	DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS rfidPlugin rfidScanner rfidTag
+install(TARGETS rfidScanner rfidTag
 	LIBRARY DESTINATION lib
 )
 

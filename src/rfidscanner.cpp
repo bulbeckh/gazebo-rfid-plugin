@@ -1,6 +1,6 @@
 
 #include "rfidscanner.h"
-#include "components/rfidtagcomponent.h"
+#include "../components/rfidtagcomponent.h"
 
 #include <gz/common/Base64.hh>
 #include <gz/sim/Model.hh>
@@ -38,10 +38,30 @@ double RFIDScannerPlugin::sigmoid(double x)
 
 bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply)
 {
-	return doScan(_reply);
+	// Trigger a scan to run during PreUpdate by adding to queue and blocking until complete
+
+	PendingScan scan;
+
+	auto future = scan.promise.get_future();
+
+	scan._reply = &_reply;
+
+	{
+		std::lock_guard<std::mutex> lock(this->pendingMutex);
+		this->pendingScans.push_back(std::move(scan));
+
+		gzmsg << "Added scan request to pendingScans queue\n";
+	}
+
+	// Wait until scan completes in PreUpdate, with 5 sec timeout
+	if (future.wait_for(std::chrono::seconds(5)) == std::future_status::ready) {
+		return future.get();
+	}
+
+	return false;
 }
 
-bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
+bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm, gz::custom_msgs::RFIDScanResponse& _reply)
 {
 	// Fail if we have not yet initialised the scanner
 	if (!scanner_initialised) {
@@ -52,17 +72,22 @@ bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
 
 	// Add scan timestamp
 	auto scan_time = _reply.mutable_time();
-	scan_time->set_sec(simulation_time_sec);
-	scan_time->set_nsec(simulation_time_nsec);
+	scan_time->set_sec(
+		(int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count())
+	);
+	
+	scan_time->set_nsec(
+		std::chrono::duration_cast<std::chrono::nanoseconds>(_info.simTime).count()
+	);
 
 	// Retrieve current pose of the scanner
-	auto sp = scanner_link.WorldPose(*ecm_internal);
+	auto sp = scanner_link.WorldPose(_ecm);
 
 	// Retrieve scanner orientation
 	gz::math::Quaterniond& scanner_orientation = sp->Rot();
 
 	// Here we iterate over all tags found in the simulation and determine if they will be read during our scan
-	ecm_internal->Each<RFIDTag>(
+	_ecm.Each<RFIDTag>(
 			[&](const gz::sim::Entity &_entity, const RFIDTag *_tag) -> bool {
 
 				const auto &tag = _tag->Data();
@@ -89,14 +114,14 @@ bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
 				 */
 
 				auto model = gz::sim::Model(_entity);
-				gz::sim::Entity model_link_entity = model.CanonicalLink(*ecm_internal);
+				gz::sim::Entity model_link_entity = model.CanonicalLink(_ecm);
 				gz::sim::Link link = gz::sim::Link(model_link_entity);
 
 				// Retrieve pose of tag
 				//auto wp = link.WorldPose(*ecm_internal);
 				// TODO This is so terrible - a very temporary hack to avoid changing type of wp from std::optional in if body
 				//auto wp = ecm_internal->Component<gz::sim::components::Pose>(_entity)->Data().value();
-				auto wp_val = gz::sim::worldPose(_entity, *ecm_internal);
+				auto wp_val = gz::sim::worldPose(_entity, _ecm);
 				auto* wp = &wp_val;
 
 
@@ -160,7 +185,7 @@ bool RFIDScannerPlugin::doScan(gz::custom_msgs::RFIDScanResponse& _reply)
 
 					// DEBUG
 					if (true) {
-						gzwarn << model.Name(*ecm_internal) << "\n";
+						gzwarn << model.Name(_ecm) << "\n";
 						gzwarn << "    Scanner Pose3d     (m,rad): " << *sp << "\n";
 						gzwarn << "    Tag Pose3d         (m,rad): " << *wp << "\n";
 						gzwarn << "    Scanner-Tag Pose3d (m,rad): " << scanner_pose_vector << "\n";
@@ -211,24 +236,18 @@ void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 					gz::sim::EntityComponentManager &_ecm,
 					gz::sim::EventManager &_eventMgr)
 {
-	// Get name of entity to use as topic prefix
-	gz::sim::Model scanner_model(_entity);
-	this->scanner_model_name = scanner_model.Name(_ecm);
-	gzmsg << "Found scanner_model name: " << this->scanner_model_name << "\n";
+	// Get name of plugin to use as scanner name
+	if (_sdf->HasAttribute("name")) scanner_name = _sdf->GetAttribute("name")->GetAsString();
 
-	// TODO Need to fix the above - ROS2 parameter (and service) bridges won't work with topics with hyphens
-	this->scanner_model_name = "rfid_scanner";
-
+	// TODO We should always have a name field, right?
+	
 	// Store the entity for later
 	scanner_entity = _entity;
-
-	// Store the ECM reference for internal use later
-	ecm_internal = &_ecm;
 
 	// Expose the scan service
 	if (!this->node.Advertise<class RFIDScannerPlugin,
 			gz::custom_msgs::RFIDScanResponse>(
-				this->scanner_model_name + "/" + this->scan_service_name,
+				this->scanner_name + "/scan_request",
 				&RFIDScannerPlugin::scanRequestCallback,
 				this)
 			) {
@@ -266,10 +285,25 @@ void RFIDScannerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
 		scanner_initialised = true;
 	}
 
-	// TODO Not thread-safe
+	// TODO We now run scan in PreUpdate so we have access to ecm
 	// Track the most recent simulation time so that we can use it during the callback
-	simulation_time_sec = (int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count());
-	simulation_time_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(_info.simTime).count(); /* - simulation_time_sec*1e3; */
+	//simulation_time_sec = (int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count());
+	//simulation_time_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(_info.simTime).count(); /* - simulation_time_sec*1e3; */
+	
+	PendingScan scan;
+
+	{
+		std::lock_guard<std::mutex> lock(this->pendingMutex);
+
+		if (this->pendingScans.empty()) return;
+
+		scan = std::move(this->pendingScans.front());
+		this->pendingScans.pop_front();
+	}
+
+	// Execute scan
+	bool success = doScan(_info, _ecm, *(scan._reply));
+	scan.promise.set_value(success);
 
 	return;
 }

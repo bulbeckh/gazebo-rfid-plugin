@@ -1,0 +1,111 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+	<world name="rfid-test-world">
+		<physics name="1ms" type="ignore">
+			<max_step_size>0.001</max_step_size>
+			<real_time_factor>1.0</real_time_factor>
+		</physics>
+
+		<plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"></plugin>
+		<plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+			<render_engine>ogre2</render_engine>
+		</plugin>
+
+		<plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"></plugin>
+		<plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"></plugin>
+
+		<include>
+			<uri>model://rfid-scanner</uri>
+			<pose>0 0 1 0 0 0</pose>
+			<static>true</static>
+		</include>
+
+		<model name="testtag">
+			<static>true</static>
+			<pose> 1 0 1 0 0 0</pose>
+			<link name='link'>
+				<inertial>
+					<mass>1.0</mass>
+				</inertial>
+				<visual name="rfid-tag-visual">
+					<geometry>
+						<box><size>0.1 0.1 0.1</size></box>
+					</geometry>
+					<material>
+						<emissive>1 0 0 1</emissive>
+					</material>
+				</visual>
+			</link>
+			<plugin filename="librfidTag" name="RFIDTagPlugin">
+				<uid>0x32143</uid>
+				<data> some tag data</data>
+			</plugin>
+		</model>
+
+		<model name="testtag2">
+			<static>true</static>
+			<pose> 1.5 0 1 0 0 0</pose>
+			<link name='link'>
+				<inertial>
+					<mass>1.0</mass>
+				</inertial>
+				<visual name="rfid-tag-visual">
+					<geometry>
+						<box><size>0.1 0.1 0.1</size></box>
+					</geometry>
+					<material>
+						<emissive>1 0 0 1</emissive>
+					</material>
+				</visual>
+			</link>
+			<plugin filename="librfidTag" name="RFIDTagPlugin">
+				<uid>0x837428o3</uid>
+				<data>otherdata</data>
+			</plugin>
+		</model>
+
+		<scene>
+			<ambient>0.5 0.5 0.5 1.0</ambient>
+			<background>0.8 0.8 0.8</background>
+			<sky></sky>
+		</scene>
+
+		<light type="directional" name="sun">
+			<cast_shadows>true</cast_shadows>
+			<pose>0 0 10 0 0 0</pose>
+			<diffuse>0.8 0.8 0.8 1</diffuse>
+			<specular>0.05 0.05 0.05 1</specular>  <!-- or 0 0 0 1 -->
+			<direction>-0.5 0.1 -0.9</direction>
+		</light>
+
+		<model name="groundplane">
+			<static>true</static>
+			<link name="link">
+				<collision name="collision">
+					<geometry>
+						<plane>
+							<normal>0 0 1</normal>
+						</plane>
+					</geometry>
+				</collision>
+				<visual name="groundplane">
+					<pose degrees="true">0 0 0 0 0 90</pose>
+					<cast_shadows>false</cast_shadows>
+					<geometry>
+						<plane>
+							<normal>0 0 1</normal>
+							<size>100 100</size>
+						</plane>
+				</geometry>
+				<material>
+				<!--ambient>0.8 0.8 0.8 1</ambient>
+				<diffuse>0.9 0.9 0.9 1</diffuse>
+				<specular>1 0 0 1</specular-->
+				<emissive>0.71 0.70 0.75 1</emissive>
+				</material>
+				</visual>
+			</link>
+		</model>
+
+	</world>
+</sdf>

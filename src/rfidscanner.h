@@ -8,10 +8,20 @@
 
 #include <chrono>
 #include <random>
+#include <deque>
+#include <mutex>
 
 #include <gz/custom_msgs/rfid_scan_response.pb.h>
 
 #include <sdf/sdf.hh>
+
+
+// TODO Move this to a private data class like the other implementations
+struct PendingScan
+{
+	std::promise<bool> promise;
+	gz::custom_msgs::RFIDScanResponse* _reply;
+};
 
 /* This RFID Scanner class has a number of configuration parameters that need
  * to be set via the SDF.
@@ -54,15 +64,8 @@ class RFIDScannerPlugin :
 		/* @brief Node for the scan service */
 		gz::transport::Node node;
 
-		/* @brief Name of this scanner model. Should be unique amongst scanner models. Used to namespace topics */
-		std::string scanner_model_name;
-
-		// TODO There is a better way to identify models (entities) as tags than check the name. Perhaps use components
-		/* @brief The prefix used to identify a model as a tag model */
-		std::string tag_prefix{"rfid-tag-"};
-
-		/* @brief Service name to use for scan request */
-		std::string scan_service_name{"scan_request"};
+		/* @brief Name of this scanner. Should be unique amongst scanner models. Taken from the 'name' attribute of the <plugin> or <sensor> */
+		std::string scanner_name;
 
 		/* @brief Whether we have initialised all the necessary elements for the scanner to function */
 		bool scanner_initialised{false};
@@ -73,21 +76,10 @@ class RFIDScannerPlugin :
 		/* @brief The canonical link of the scanner that is used to determine it's pose. Set during first PreUpdate */
 		gz::sim::Link scanner_link;
 
-		/* @brief A pointer to the ECM. NOTE We can do this as long as we don't use it to modify the ecm (that should be done
-		 * during PreUpdate/PostUpdate) */
-		gz::sim::EntityComponentManager* ecm_internal{nullptr};
-		
-		/* @brief We keep track of the current simulation time so that we can report it during a scan request */
-		int64_t simulation_time_sec;
-		int32_t simulation_time_nsec;
-
 		/* @brief Complete a round of RFID scanning and populate the RFIDScanResponse message */
-		bool doScan(gz::custom_msgs::RFIDScanResponse& _reply);
+		bool doScan(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm, gz::custom_msgs::RFIDScanResponse& _reply);
 
 	private:
-		/* @brief Flag for whether we need to a do a scan during next PreUpdate */
-		bool do_scan_flag{false};
-
 		/* @brief Callback function for a request to do a scan */
 		bool scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply);
 
@@ -149,4 +141,9 @@ class RFIDScannerPlugin :
 
 		std::uniform_real_distribution<> distribution;
 
+	private:
+		/* @brief Queue of scan requests to be processed during PreUpdate */
+		std::deque<PendingScan> pendingScans;
+
+		std::mutex pendingMutex;
 };
