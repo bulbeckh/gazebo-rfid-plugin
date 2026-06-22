@@ -66,6 +66,9 @@ target_link_libraries(rfidTag PRIVATE
 	${PROJECT_NAME}-msgs
 )
 
+## Testing
+add_subdirectory(test/integration)
+
 install(DIRECTORY rfid-scanner rfid-tag
 	DESTINATION share/${PROJECT_NAME}
 )

@@ -131,6 +131,9 @@ class RFIDScannerPlugin :
 		double tx_read_scaling{2};
 		double rx_read_scaling{2};
 
+		/* @brief Whether we return all tags, regardless of RSSI. Used to delegate choice of 'successful read' to caller, or during tests. */
+		bool return_all{false};
+
 	private:
 		/* @brief Sigmoid function implementation */
 		double sigmoid(double x);

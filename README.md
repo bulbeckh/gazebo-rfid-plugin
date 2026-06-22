@@ -5,11 +5,11 @@ This Gazebo plugin simulates an RFID tag scanning system with a focus on realist
     <img src="docs/img/scanner-im-out.png" width="100%">
 </p>
 
-## Features
-- Service for adding and removing tags from the simulation.
-- Service for conducting scan including custom RFID scan result messages.
-- OBJ Models of RFID Antenna/Reader and RFID tags.
-- Realistic RFID scanning model based on Friis free-space-path-loss (FSPL).
+### Features
+- Service for conducting scan including custom RFID scan result messages
+- Model of RFID Antenna/Reader
+- Realistic RFID scanning model based on Friis free-space-path-loss (FSPL)
+- Gazebo RFID Scan result proto messages and ROS2 message and service definitions
 
 `TODO Add testing`
 `TODO Add information about compatibility between gazebo versions`
@@ -65,7 +65,7 @@ The SDF for this plugin has a number of parameters that can be configured.
 ### RFID Tag Configuration
 | Parameter | Default | Description |
 | --- | --- | --- |
-| `uid` | - | Unique Identifier of this RFID tag. We do not ensure uniqueness amongst tags and two tags with the same UID may be repeated in scan results. |
+| `uid` | (required, no default) | Unique Identifier of this RFID tag. We do not ensure uniqueness amongst tags and two tags with the same UID may be repeated in scan results. |
 | `data` | "" | Used to emulate stored data on the tag. Maximum size of 512 bytes. |
 
 #### See Also

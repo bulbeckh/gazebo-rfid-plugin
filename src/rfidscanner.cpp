@@ -210,8 +210,8 @@ bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::Entity
 						gzwarn << "    total read prob: " << p_read << "\n";
 					}
 
-					// Sample from distribution to determine if read was successful
-					if ( distribution(gen) < p_read ) {
+					// Sample from distribution to determine if read was successful (or if we have configured to return all tags)
+					if ( return_all || distribution(gen) < p_read ) {
 
 						// Successful read - add tag to list of found tags
 						auto* scanmessage = _reply.add_scan();
@@ -271,6 +271,7 @@ void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
 	if (_sdf->HasElement("rx_threshold_power")) rx_threshold_power = _sdf->Get<double>("rx_threshold_power");
 	if (_sdf->HasElement("tx_read_scaling")) tx_read_scaling = _sdf->Get<double>("tx_read_scaling");
 	if (_sdf->HasElement("rx_read_scaling")) rx_read_scaling = _sdf->Get<double>("rx_read_scaling");
+	if (_sdf->HasElement("return_all")) return_all = _sdf->Get<bool>("return_all");
 
 	return;
 }
