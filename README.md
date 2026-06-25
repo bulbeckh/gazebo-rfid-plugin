@@ -1,18 +1,18 @@
 # RFID Scanner Gazebo Plugin
-This Gazebo plugin simulates an RFID tag scanning system with a focus on realistic radio-frequency effects. It models antenna gain patterns, free-space path loss, and polarization mismatch to estimate received signal strength and tag readability during simulation. By accounting for relative pose, distance, and antenna orientation between readers and tags, the plugin provides a more realistic simulation of the RFID scan process, and is particularly useful in modelling retail environments (inventory monitoring, automated stock counts) and industrial environments (warehouse automation, mobile readers).
+This Gazebo plugin simulates an RFID tag scanning system with a focus on realistic radio-frequency effects. It models antenna gain patterns, free-space path loss, and polarization mismatch to estimate received signal strength and tag readability during simulation. By accounting for relative pose, distance, and antenna orientation between readers and tags, the plugin provides a realistic simulation of the RFID scan process, and is useful in modelling retail and industrial environments.
 
 <p align="center">
     <img src="docs/img/scanner-im-out.png" width="100%">
 </p>
 
 ### Features
-- Service for conducting scan including custom RFID scan result messages
+- Gazebo service for conducting scans
 - Model of RFID Antenna/Reader
 - Realistic RFID scanning model based on Friis free-space-path-loss (FSPL)
-- Gazebo RFID Scan result proto messages and ROS2 message and service definitions
+- RFID Scan proto messages
+- ROS2 message and service definitions
 
-`TODO Add testing`
-`TODO Add information about compatibility between gazebo versions`
+Currently tested using gz-harmonic
 
 ## Installation
 
@@ -22,7 +22,7 @@ First, we build the plugin.
 mkdir build
 cd build
 cmake ..
-make -j4
+make
 ```
 
 Then we can run the provided example
@@ -34,11 +34,11 @@ gz sim -v4 examples/world.sdf
 In another terminal, we can call the scan service
 ```bash
 source setup_gz.sh
-gz service --timeout 10000 -s /RFIDScannerPlugin/scan_request --reqtype gz.msgs.Empty --reptype gz.custom_msgs.RFIDScanResponse -r ''
+gz service --timeout 10000 -s /rfid-scanner/scan_request --reqtype gz.msgs.Empty --reptype gz.custom_msgs.RFIDScanResponse -r ''
 ```
 
 ### Installation for ROS2
-We also include ROS2 `srv`and `msg` definitions for our RFID scan messages. Because we expose our own service for requesting scans, we also need a custom ros_gz_bridge fork that is able to handle custom service bridges.
+We also include ROS2 `srv`and `msg` definitions for our RFID scan messages. Because we expose our own service for requesting scans, we use a fork of ros_gz_bridge that is able to handle custom service bridges.
 
 TODO Add link to forked ros_gz_bridge with support for custom service bridge
 
@@ -69,6 +69,6 @@ The SDF for this plugin has a number of parameters that can be configured.
 | `data` | "" | Used to emulate stored data on the tag. Maximum size of 512 bytes. |
 
 #### See Also
-- A detailed tutorial based on this plugin, available [here]().
+- More information on the scan model and configuration in [docs/testing.ipynb](https://github.com/bulbeckh/gazebo-rfid-plugin/blob/master/docs/testing.ipynb)
 - Usage of this RFID plugin in an actual Gazebo simulation environment, [here](https://github.com/bulbeckh/stocktake).
 

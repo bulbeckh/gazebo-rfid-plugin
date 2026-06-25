@@ -1,43 +1,145 @@
 
 #include "rfidscanner.h"
+
 #include "../components/rfidtagcomponent.h"
 
-#include <gz/common/Base64.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/Entity.hh>
+#include <gz/sim/Link.hh>
+#include <gz/sim/SdfEntityCreator.hh>
+#include <gz/sim/Util.hh>
 
 #include <gz/math/Pose3.hh>
 
 #include <gz/sim/components/Model.hh>
 #include <gz/sim/components/Pose.hh>
-#include <gz/sim/Util.hh>
-
-#include <gz/msgs/stringmsg.pb.h>
 
 #include <gz/plugin/Register.hh>
 
 #include <string>
 #include <cmath>
 
-GZ_ADD_PLUGIN(RFIDScannerPlugin,
-		gz::sim::System,
-		RFIDScannerPlugin::ISystemConfigure,
-		RFIDScannerPlugin::ISystemPreUpdate
-)
+#include <chrono>
+#include <random>
+#include <deque>
+#include <mutex>
 
-RFIDScannerPlugin::RFIDScannerPlugin(void) :
-	gen(rd()),
-	distribution(0,1)
-{
-}
+#include <gz/transport/Node.hh>
 
-double RFIDScannerPlugin::sigmoid(double x)
+#include <gz/msgs/boolean.pb.h>
+#include <gz/msgs/stringmsg.pb.h>
+
+#include <gz/custom_msgs/rfid_scan_response.pb.h>
+
+#include <sdf/sdf.hh>
+
+
+
+double sigmoid(double x)
 {
 	return 1.0 / (1.0 + std::exp(-x));
 }
 
-bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply)
+struct PendingScan
 {
+	public: std::promise<bool> promise;
+	public: gz::custom_msgs::RFIDScanResponse* _reply;
+};
+
+class RFIDScannerPrivate
+{
+	public: RFIDScannerPrivate();
+
+	/* @brief Node for the scan service */
+	public: gz::transport::Node node;
+
+	/* @brief Whether we have initialised all the necessary elements for the scanner to function */
+	public: bool scanner_initialised{false};
+
+	/* @brief The entity of this scanner. Set during Configure */
+	public: gz::sim::Entity scanner_entity;
+		
+	/* @brief Model wrapper for scanner model */
+	public: gz::sim::Model scanner_model;
+
+	/* @brief Complete a round of RFID scanning and populate the RFIDScanResponse message */
+	public: bool DoScan(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm, gz::custom_msgs::RFIDScanResponse& _reply);
+
+	/* @brief Callback function for a request to do a scan */
+	public: bool OnScanRequest(gz::custom_msgs::RFIDScanResponse& _reply);
+
+	public:
+		std::random_device rd;
+		std::mt19937 gen;
+		std::uniform_real_distribution<> distribution;
+
+	/* @brief Queue of scan requests to be processed during PreUpdate */
+	public: std::deque<PendingScan> pendingScans;
+
+	/* @brief Mutex to control access to pending scan queue */
+	public: std::mutex pendingMutex;
+
+	// The following parameters are set via the SDF. Defaults are below.
+
+	/* @brief Antenna transmission gain (in dB) */
+	public: double antenna_power{30};
+
+	/* @brief The path loss factor when we have line of sight to the tag */
+	public: double path_loss_los_gain{2.2};
+
+	/* @brief Loss (in dB) with distance at 0m for a UHF reader (at ~900Mhz) */
+	public: double path_loss_base_loss{31};
+
+	/* @brief Minimum distance to use for path loss (avoids log singularities) */
+	public: double path_loss_min_distance{0.2};
+
+	/* @brief Maximum loss from polarization angle (in dB) */
+	public: double polarization_max_loss{25};
+
+	/* @brief Antenna (directional) gain peak (in dBi) */
+	public: double antenna_gain_peak{6};
+
+	/* @brief Antenna (directional) gain maximum loss (in dBi) */
+	public: double antenna_gain_max_loss{25};
+
+	/* @brief Antenna (directional) gain parabola scaling (in dBi) */
+	public: double antenna_gain_loss_scaling{6};
+
+	/* @brief Tag (directional) gain (in dBi) */
+	public: double tag_directional_gain{0};
+
+	/* @brief Power threshold at which transmitted and received signals each have 50% read probability (for sigmoid) */
+	public: double tx_threshold_power{-15};
+	public: double rx_threshold_power{-70};
+
+	/* @brief Scaling parameter for rx and tx read probabilities */
+	public: double tx_read_scaling{2};
+	public: double rx_read_scaling{2};
+
+	/* @brief Whether we return all tags, regardless of RSSI. Used to delegate choice of 'successful read' to caller, or during tests. */
+	public: bool return_all{false};
+
+};
+
+RFIDScannerPrivate::RFIDScannerPrivate() :
+	gen(rd()),
+	distribution(0.0,1.0)
+{
+}
+
+RFIDScanner::RFIDScanner(void)
+	: dataPtr(std::make_unique<RFIDScannerPrivate>())
+{
+}
+
+
+bool RFIDScannerPrivate::OnScanRequest(gz::custom_msgs::RFIDScanResponse& _reply)
+{
+	if (!scanner_initialised) {
+		gzwarn << "Scanner has not been initialised. Scan will not be completed\n";
+		return false;
+	}
+
 	// Trigger a scan to run during PreUpdate by adding to queue and blocking until complete
 
 	PendingScan scan;
@@ -47,10 +149,9 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 	scan._reply = &_reply;
 
 	{
-		std::lock_guard<std::mutex> lock(this->pendingMutex);
-		this->pendingScans.push_back(std::move(scan));
-
-		gzmsg << "Added scan request to pendingScans queue\n";
+		std::lock_guard<std::mutex> lock(pendingMutex);
+		pendingScans.push_back(std::move(scan));
+		gzdbg << "Added scan request to pendingScans queue\n";
 	}
 
 	// Wait until scan completes in PreUpdate, with 5 sec timeout
@@ -61,7 +162,7 @@ bool RFIDScannerPlugin::scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _
 	return false;
 }
 
-bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm, gz::custom_msgs::RFIDScanResponse& _reply)
+bool RFIDScannerPrivate::DoScan(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm, gz::custom_msgs::RFIDScanResponse& _reply)
 {
 	// Fail if we have not yet initialised the scanner
 	if (!scanner_initialised) {
@@ -72,6 +173,7 @@ bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::Entity
 
 	// Add scan timestamp
 	auto scan_time = _reply.mutable_time();
+
 	scan_time->set_sec(
 		(int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count())
 	);
@@ -80,22 +182,20 @@ bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::Entity
 		std::chrono::duration_cast<std::chrono::nanoseconds>(_info.simTime).count()
 	);
 
+	// TODO We are unable to check whether this was successful. An error message is logged but that is it.
 	// Retrieve current pose of the scanner
-	auto sp = scanner_link.WorldPose(_ecm);
+	gz::math::Pose3d sp = worldPose(scanner_entity, _ecm);
 
 	// Retrieve scanner orientation
-	gz::math::Quaterniond& scanner_orientation = sp->Rot();
+	gz::math::Quaterniond& scanner_orientation = sp.Rot();
 
 	// Here we iterate over all tags found in the simulation and determine if they will be read during our scan
-	_ecm.Each<RFIDTag>(
-			[&](const gz::sim::Entity &_entity, const RFIDTag *_tag) -> bool {
+	_ecm.Each<gz::sim::components::RFIDTag>(
+			[&](const gz::sim::Entity &_entity, const gz::sim::components::RFIDTag *_tag) -> bool {
 
 				const auto &tag = _tag->Data();
 				
-				/* TODO This section makes assumptions about how we are structuring our tag object. Currently,
-				 * we load tags either via a create service call or via the SDF. In either case, we want
-				 * the tag content (the uid and the stored data) to by dynamically created (potentially)
-				 * at runtime, so our tag objects have the following structure:
+				/* This section assumes our tag objects have the following structure:
 				 *
 				 * <model>
 				 * 	<include>
@@ -108,121 +208,101 @@ bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::Entity
 				 * 	</plugin>
 				 * </model>
 				 *
-				 * Our original implementation (which the below code was mostly written for) instead
-				 * assumed that we have a single model which itself has a link which we use to extract
-				 * the WorldPose.
 				 */
 
-				auto model = gz::sim::Model(_entity);
-				gz::sim::Entity model_link_entity = model.CanonicalLink(_ecm);
-				gz::sim::Link link = gz::sim::Link(model_link_entity);
-
+				// TODO This does not check if we actually have a world pose
 				// Retrieve pose of tag
-				//auto wp = link.WorldPose(*ecm_internal);
-				// TODO This is so terrible - a very temporary hack to avoid changing type of wp from std::optional in if body
-				//auto wp = ecm_internal->Component<gz::sim::components::Pose>(_entity)->Data().value();
-				auto wp_val = gz::sim::worldPose(_entity, _ecm);
-				auto* wp = &wp_val;
+				gz::math::Pose3d wp = gz::sim::worldPose(_entity, _ecm);
 
+				// To estimate rssi (and calculate read probability), we need both the scanner pose and the tag pose
+				//
+				// From these, we calculate:
+				// 1. Polarization:    difference in angle between tag orientation and scanner orientation
+				// 2. Linear distance: difference in position between scanner and tag
+				// 3. Antenna gain:    difference in angle between antenna boresight vector and scanner to tag vector
 
-				if (wp && sp) {
-					// To estimate rssi (and read probability), we need both the scanner pose and the tag pose
-					//
-					// From these, we calculate:
-					// 1. Polarization (difference in angle between tag orientation and scanner orientation
-					// 2. Linear distance (scalar difference in position between scanner and tag)
-					// 3. Antenna gain (difference in angle between antenna boresight vector and scanner to tag vector)
+				// Vector from scanner to tag in world frame
+				gz::math::Vector3d scanner_pose_vector = wp.CoordPositionSub(sp);
 
-					// Vector from scanner to tag in world frame
-					gz::math::Vector3d scanner_pose_vector = wp->CoordPositionSub(*sp);
+				double tag_scanner_linear_distance = scanner_pose_vector.Length();
 
-					double tag_scanner_linear_distance = scanner_pose_vector.Length();
+				// This vector represents that orientation of the tag polarization vector in the tag frame
+				gz::math::Vector3d tag_local_ref(1,0,0);
 
-					// Calculate dot product between scanner orientation and tag orientation (for polarization calculation)
-					
-					// TODO Check this aligns with the model visual
-					// This vector represents that orientation of the tag polarization in its default state. Currently,
-					// this is pointing towards the tag x-axis but this needs to be configured.
-					gz::math::Vector3d tag_local_ref(1,0,0);
+				// Scanner boresight points along +ve x-axis
+				gz::math::Vector3d antenna_local_ref(1,0,0);
 
-					// We use (1,0,0) because in the default orientation (no rotation) the scanner boresight is pointing out the x-axis
-					gz::math::Vector3d antenna_local_ref(1,0,0);
+				gz::math::Quaterniond& tag_orientation = wp.Rot();
 
-					gz::math::Quaterniond& tag_orientation = wp->Rot();
+				double cos_theta = (tag_orientation.RotateVector(tag_local_ref)).Dot(scanner_orientation.RotateVector(antenna_local_ref));
 
-					double cos_theta = (tag_orientation.RotateVector(tag_local_ref)).Dot(scanner_orientation.RotateVector(antenna_local_ref));
+				// Calculate dot product between scanner to tag vector and scanner orientation
+				gz::math::Vector3d scanner_direction = scanner_orientation.RotateVector(antenna_local_ref);
 
-					// Calculate dot product between scanner to tag vector and scanner orientation (for antenna gain calculation)
-					gz::math::Vector3d scanner_direction = scanner_orientation.RotateVector(antenna_local_ref);
+				// Relative angle between antenna boresight and direction to tag
+				double antenna_gain_angle = std::acos(scanner_direction.Dot(scanner_pose_vector.Normalized()));
 
-					// Relative angle between antenna boresight and direction to tag
-					double antenna_gain_angle = std::acos(scanner_direction.Dot(scanner_pose_vector.Normalized()));
+				// Calculate tranmission power
+				//
+				// In default configuration, equation is: antenna_gain = 6 - min(25, 6*(\theta^{2}))
+				double antenna_gain = antenna_gain_peak - std::min(antenna_gain_max_loss, antenna_gain_loss_scaling*std::pow(antenna_gain_angle,2));
 
-					// Calculate tranmission power
-					//
-					// In default configuration, equation is: antenna_gain = 6 - min(25, 6*(\theta^{2}))
-					double antenna_gain = antenna_gain_peak - std::min(antenna_gain_max_loss, antenna_gain_loss_scaling*std::pow(antenna_gain_angle,2));
+				// Calculate polarization loss
+				//
+				// In default configuration, equation is: polarization_loss = min(25, log10(cos(\theta)))
+				double loss_polarization = std::min(polarization_max_loss, -20*std::log10(std::abs(cos_theta)));
 
-					// Calculate polarization loss
-					//
-					// In default configuration, equation is: polarization_loss = min(25, log10(cos(\theta)))
-					double loss_polarization = std::min(polarization_max_loss, -20*std::log10(std::abs(cos_theta)));
+				// TODO Add LOS / NLOS factor between reader and tag. We assume no line-of-sight always here, hence the multiplication by path_loss_los_gain
+				
+				// Calculate path loss
+				//
+				// In default configuration, equation is: path_loss = 31 + 10*2.2*los10(max(0.2, distance))
+				double loss_path = path_loss_base_loss + 10*path_loss_los_gain*std::log10(std::max(path_loss_min_distance, tag_scanner_linear_distance));
 
-					// TODO Add LOS / NLOS factor between reader and tag
-					// Calculate path loss
-					//
-					// In default configuration, equation is: path_loss = 31 + 10*2.2*los10(max(0.2, distance))
-					double loss_path = path_loss_base_loss + 10*path_loss_los_gain*std::log10(std::max(path_loss_min_distance, tag_scanner_linear_distance));
+				// Calculate tranmission and received power
+				double transmission_power = antenna_power + antenna_gain + tag_directional_gain - loss_polarization - loss_path;
+				double received_power = antenna_power + antenna_gain + tag_directional_gain - 2*(loss_polarization + loss_path);
 
-					// Calculate tranmission and received power
-					double transmission_power = antenna_power + antenna_gain + tag_directional_gain - loss_polarization - loss_path;
-					double received_power = antenna_power + antenna_gain + tag_directional_gain - 2*(loss_polarization + loss_path);
+				// Calculate read probabilities
+				double p_read_tx = sigmoid((transmission_power - tx_threshold_power) / tx_read_scaling);
+				double p_read_rx = sigmoid((received_power - rx_threshold_power) / rx_read_scaling);
+				double p_read = p_read_tx*p_read_rx;
 
-					// Calculate read probabilities
-					double p_read_tx = sigmoid((transmission_power - tx_threshold_power) / tx_read_scaling);
-					double p_read_rx = sigmoid((received_power - rx_threshold_power) / rx_read_scaling);
-					double p_read = p_read_tx*p_read_rx;
+				// DEBUG
+				gzdbg << scanner_model.Name(_ecm) << "\n";
+				gzdbg << "    Scanner Pose3d     (m,rad): " << sp << "\n";
+				gzdbg << "    Tag Pose3d         (m,rad): " << wp << "\n";
+				gzdbg << "    Scanner-Tag Pose3d (m,rad): " << scanner_pose_vector << "\n";
+				gzdbg << "    Scanner Quaternion        : " << sp.Rot() << "\n";
+				gzdbg << "    Scanner Eul               : " << sp.Rot().Euler() << "\n";
+				gzdbg << "    Tag Quaternion            : " << wp.Rot() << "\n";
+				gzdbg << "    Tag Eul                   : " << wp.Rot().Euler() << "\n";
+				gzdbg << "    Scanner-Tag Vec        (m): " << scanner_pose_vector << "\n";
+				gzdbg << "    Polarization angle   (rad): " << std::acos(cos_theta) << "\n";
+				gzdbg << "    Scanner direction vec  (m): " << scanner_direction << "\n";
+				gzdbg << "    Antenna gain angle (cos(rad)): " << antenna_gain_angle << "\n";
+				gzdbg << "    Linear distance   : " << tag_scanner_linear_distance << "\n";
+				gzdbg << " Transmission Stats\n";
+				gzdbg << "	   antenna gain: " << antenna_gain << "\n";
+				gzdbg << "	   loss polarization: " << loss_polarization << "\n";
+				gzdbg << "	   loss path: " << loss_path << "\n";
+				gzdbg << "	   transmission power: " << transmission_power << "\n";
+				gzdbg << "	   received power: " << received_power << "\n";
+				gzdbg << " Read Stats\n";
+				gzdbg << "    tag read prob: " << p_read_tx << "\n";
+				gzdbg << "    antenna read prob: " << p_read_rx << "\n";
+				gzdbg << "    total read prob: " << p_read << "\n";
 
-					// DEBUG
-					if (true) {
-						gzwarn << model.Name(_ecm) << "\n";
-						gzwarn << "    Scanner Pose3d     (m,rad): " << *sp << "\n";
-						gzwarn << "    Tag Pose3d         (m,rad): " << *wp << "\n";
-						gzwarn << "    Scanner-Tag Pose3d (m,rad): " << scanner_pose_vector << "\n";
-						gzwarn << "    Scanner Quaternion        : " << sp->Rot() << "\n";
-						gzwarn << "    Scanner Eul               : " << sp->Rot().Euler() << "\n";
-						gzwarn << "    Tag Quaternion            : " << wp->Rot() << "\n";
-						gzwarn << "    Tag Eul                   : " << wp->Rot().Euler() << "\n";
-						gzwarn << "    Scanner-Tag Vec        (m): " << scanner_pose_vector << "\n";
-						gzwarn << "    Polarization angle   (rad): " << std::acos(cos_theta) << "\n";
-						gzwarn << "    Scanner direction vec  (m): " << scanner_direction << "\n";
-						gzwarn << "    Antenna gain angle (cos(rad)): " << antenna_gain_angle << "\n";
-						gzwarn << "    Linear distance   : " << tag_scanner_linear_distance << "\n";
-						gzwarn << " Transmission Stats\n";
-						gzwarn << "	   antenna gain: " << antenna_gain << "\n";
-						gzwarn << "	   loss polarization: " << loss_polarization << "\n";
-						gzwarn << "	   loss path: " << loss_path << "\n";
-						gzwarn << "	   transmission power: " << transmission_power << "\n";
-						gzwarn << "	   received power: " << received_power << "\n";
-						gzwarn << " Read Stats\n";
-						gzwarn << "    tag read prob: " << p_read_tx << "\n";
-						gzwarn << "    antenna read prob: " << p_read_rx << "\n";
-						gzwarn << "    total read prob: " << p_read << "\n";
-					}
+				// Sample from distribution to determine if read was successful (or if we have configured to return all tags)
+				if ( return_all || distribution(gen) < p_read ) {
 
-					// Sample from distribution to determine if read was successful (or if we have configured to return all tags)
-					if ( return_all || distribution(gen) < p_read ) {
+					// Successful read - add tag to list of found tags
+					auto* scanmessage = _reply.add_scan();
 
-						// Successful read - add tag to list of found tags
-						auto* scanmessage = _reply.add_scan();
-
-						scanmessage->set_uid(tag.uid);
-						scanmessage->set_data(tag.data);
-						scanmessage->set_rssi(received_power);
-					}
+					scanmessage->set_uid(tag.uid);
+					scanmessage->set_data(tag.data);
+					scanmessage->set_rssi(received_power);
 				}
-
-				gzmsg << "Found component/entity tag: " << tag.uid << "/" << _entity << "\n";
 
 				return true;
 			});
@@ -231,81 +311,121 @@ bool RFIDScannerPlugin::doScan(const gz::sim::UpdateInfo& _info, gz::sim::Entity
 }
 
 
-void RFIDScannerPlugin::Configure(const gz::sim::Entity &_entity,
+void RFIDScanner::Configure(const gz::sim::Entity &_entity,
 					const std::shared_ptr<const sdf::Element> &_sdf,
 					gz::sim::EntityComponentManager &_ecm,
 					gz::sim::EventManager &_eventMgr)
 {
-	// Get name of plugin to use as scanner name
-	if (_sdf->HasAttribute("name")) scanner_name = _sdf->GetAttribute("name")->GetAsString();
+	// Get reference to parent model of RFIDScanner
+	this->dataPtr->scanner_model = gz::sim::Model(_entity);
 
-	// TODO We should always have a name field, right?
+	// Error if parent is not <model>
+	if (!this->dataPtr->scanner_model.Valid(_ecm)) {
+		gzwarn << "Parent of RFID scanner is not a <model> element. Failed to configure\n";
+		return;
+	}
 	
-	// Store the entity for later
-	scanner_entity = _entity;
+	// Store the entity
+	this->dataPtr->scanner_entity = _entity;
 
-	// Expose the scan service
-	if (!this->node.Advertise<class RFIDScannerPlugin,
+	// Expose the scan service, prefixed by the scanner model name
+	if (!this->dataPtr->node.Advertise<class RFIDScannerPrivate,
 			gz::custom_msgs::RFIDScanResponse>(
-				this->scanner_name + "/scan_request",
-				&RFIDScannerPlugin::scanRequestCallback,
-				this)
+				this->dataPtr->scanner_model.Name(_ecm) + "/scan_request",
+				&RFIDScannerPrivate::OnScanRequest,
+				this->dataPtr.get())
 			) {
 		gzwarn << "Failed to create RFID scan service\n";
 		return;
 	} else {
-		gzmsg << "Created RFID scan service\n";
+		gzdbg << "Created RFID scan service\n";
 	}
 
 	// Retrieve configuration from the sdf
-	if (_sdf->HasElement("antenna_power")) antenna_power = _sdf->Get<double>("antenna_power");
-	if (_sdf->HasElement("path_loss_los_gain")) path_loss_los_gain = _sdf->Get<double>("path_loss_los_gain");
-	if (_sdf->HasElement("path_loss_base_loss")) path_loss_base_loss = _sdf->Get<double>("path_loss_base_loss");
-	if (_sdf->HasElement("path_loss_min_distance")) path_loss_min_distance = _sdf->Get<double>("path_loss_min_distance");
-	if (_sdf->HasElement("polarization_max_loss")) polarization_max_loss = _sdf->Get<double>("polarization_max_loss");
-	if (_sdf->HasElement("antenna_gain_peak")) antenna_gain_peak = _sdf->Get<double>("antenna_gain_peak");
-	if (_sdf->HasElement("antenna_gain_max_loss")) antenna_gain_max_loss = _sdf->Get<double>("antenna_gain_max_loss");
-	if (_sdf->HasElement("antenna_gain_loss_scaling")) antenna_gain_loss_scaling = _sdf->Get<double>("antenna_gain_loss_scaling");
-	if (_sdf->HasElement("tag_directional_gain")) tag_directional_gain = _sdf->Get<double>("tag_directional_gain");
-	if (_sdf->HasElement("tx_threshold_power")) tx_threshold_power = _sdf->Get<double>("tx_threshold_power");
-	if (_sdf->HasElement("rx_threshold_power")) rx_threshold_power = _sdf->Get<double>("rx_threshold_power");
-	if (_sdf->HasElement("tx_read_scaling")) tx_read_scaling = _sdf->Get<double>("tx_read_scaling");
-	if (_sdf->HasElement("rx_read_scaling")) rx_read_scaling = _sdf->Get<double>("rx_read_scaling");
-	if (_sdf->HasElement("return_all")) return_all = _sdf->Get<bool>("return_all");
+	if (_sdf->HasElement("antenna_power")) this->dataPtr->antenna_power = _sdf->Get<double>("antenna_power");
+
+	if (_sdf->HasElement("path_loss_los_gain")) this->dataPtr->path_loss_los_gain = _sdf->Get<double>("path_loss_los_gain");
+
+	if (_sdf->HasElement("path_loss_base_loss")) this->dataPtr->path_loss_base_loss = _sdf->Get<double>("path_loss_base_loss");
+
+	if (_sdf->HasElement("path_loss_min_distance")) {
+		double min_distance = _sdf->Get<double>("path_loss_min_distance");
+
+		if (min_distance >= 0.0) {
+			this->dataPtr->path_loss_min_distance = min_distance;
+		} else {
+			gzwarn << "path_loss_min_distance must be greater than 0. Using default.\n";
+		}
+	}
+
+	if (_sdf->HasElement("polarization_max_loss")) this->dataPtr->polarization_max_loss = _sdf->Get<double>("polarization_max_loss");
+
+	if (_sdf->HasElement("antenna_gain_peak")) this->dataPtr->antenna_gain_peak = _sdf->Get<double>("antenna_gain_peak");
+
+	if (_sdf->HasElement("antenna_gain_max_loss")) this->dataPtr->antenna_gain_max_loss = _sdf->Get<double>("antenna_gain_max_loss");
+
+	if (_sdf->HasElement("antenna_gain_loss_scaling")) this->dataPtr->antenna_gain_loss_scaling = _sdf->Get<double>("antenna_gain_loss_scaling");
+
+	if (_sdf->HasElement("tag_directional_gain")) this->dataPtr->tag_directional_gain = _sdf->Get<double>("tag_directional_gain");
+
+	if (_sdf->HasElement("tx_threshold_power")) this->dataPtr->tx_threshold_power = _sdf->Get<double>("tx_threshold_power");
+
+	if (_sdf->HasElement("rx_threshold_power")) this->dataPtr->rx_threshold_power = _sdf->Get<double>("rx_threshold_power");
+
+	if (_sdf->HasElement("tx_read_scaling")) {
+		double tx_read_s = _sdf->Get<double>("tx_read_scaling");
+		if (tx_read_s > 0.0) {
+			this->dataPtr->tx_read_scaling = tx_read_s;
+		} else {
+			gzwarn << "tx_read_scaling must be greater than 0. using default.\n";
+		}
+	}
+
+	if (_sdf->HasElement("rx_read_scaling")) {
+		double rx_read_s = _sdf->Get<double>("rx_read_scaling");
+		if (rx_read_s > 0.0) {
+			this->dataPtr->rx_read_scaling = rx_read_s;
+		} else {
+			gzwarn << "rx_read_scaling must be greater than 0. using default.\n";
+		}
+	}
+
+	if (_sdf->HasElement("return_all")) this->dataPtr->return_all = _sdf->Get<bool>("return_all");
+
+	this->dataPtr->scanner_initialised = true;
 
 	return;
 }
 
-void RFIDScannerPlugin::PreUpdate(const gz::sim::UpdateInfo &_info,
+void RFIDScanner::PreUpdate(const gz::sim::UpdateInfo &_info,
 		gz::sim::EntityComponentManager &_ecm)
 {
-	// Get the canonical link of the scanner so that we can retrieve the pose later
-	if (!scanner_initialised) {
-		auto scanner_model = gz::sim::Model(scanner_entity);
-		scanner_link = gz::sim::Link(scanner_model.CanonicalLink(_ecm));
-		scanner_initialised = true;
+	// Return if we have not yet initialised
+	if (!this->dataPtr->scanner_initialised) {
+		return;
 	}
 
-	// TODO We now run scan in PreUpdate so we have access to ecm
-	// Track the most recent simulation time so that we can use it during the callback
-	//simulation_time_sec = (int32_t)(std::chrono::duration_cast<std::chrono::duration<double>>(_info.simTime).count());
-	//simulation_time_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(_info.simTime).count(); /* - simulation_time_sec*1e3; */
-	
+	// Retrieve next remaining scan to be processed. Process at most 1 per PreUpdate.
 	PendingScan scan;
 
 	{
-		std::lock_guard<std::mutex> lock(this->pendingMutex);
+		std::lock_guard<std::mutex> lock(this->dataPtr->pendingMutex);
 
-		if (this->pendingScans.empty()) return;
+		if (this->dataPtr->pendingScans.empty()) return;
 
-		scan = std::move(this->pendingScans.front());
-		this->pendingScans.pop_front();
+		scan = std::move(this->dataPtr->pendingScans.front());
+		this->dataPtr->pendingScans.pop_front();
 	}
 
 	// Execute scan
-	bool success = doScan(_info, _ecm, *(scan._reply));
+	bool success = this->dataPtr->DoScan(_info, _ecm, *(scan._reply));
 	scan.promise.set_value(success);
 
 	return;
 }
 
+GZ_ADD_PLUGIN(RFIDScanner,
+		gz::sim::System,
+		RFIDScanner::ISystemConfigure,
+		RFIDScanner::ISystemPreUpdate
+)

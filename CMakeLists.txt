@@ -27,7 +27,6 @@ set(GZ_SIM_VER ${gz-sim8_VERSION_MAJOR})
 
 ## Add custom RFID messages
 set(MSGS_PROTOS
-	${CMAKE_CURRENT_SOURCE_DIR}/proto/gz/custom_msgs/rfid_tag_list.proto
 	${CMAKE_CURRENT_SOURCE_DIR}/proto/gz/custom_msgs/rfid_scan_response.proto
 )
 
@@ -69,7 +68,7 @@ target_link_libraries(rfidTag PRIVATE
 ## Testing
 add_subdirectory(test/integration)
 
-install(DIRECTORY rfid-scanner rfid-tag
+install(DIRECTORY rfid-scanner
 	DESTINATION share/${PROJECT_NAME}
 )
 

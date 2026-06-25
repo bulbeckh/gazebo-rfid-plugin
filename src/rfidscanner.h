@@ -1,152 +1,32 @@
 #pragma once
 
 #include <gz/sim/System.hh>
-#include <gz/sim/Link.hh>
-#include <gz/sim/SdfEntityCreator.hh>
-#include <gz/transport/Node.hh>
-#include <gz/msgs/boolean.pb.h>
 
-#include <chrono>
-#include <random>
-#include <deque>
-#include <mutex>
+#include <memory>
 
-#include <gz/custom_msgs/rfid_scan_response.pb.h>
+// Forward decl
+class RFIDScannerPrivate;
 
-#include <sdf/sdf.hh>
-
-
-// TODO Move this to a private data class like the other implementations
-struct PendingScan
-{
-	std::promise<bool> promise;
-	gz::custom_msgs::RFIDScanResponse* _reply;
-};
-
-/* This RFID Scanner class has a number of configuration parameters that need
- * to be set via the SDF.
- *
- *
- * TODO Add SDF example here
- *
- *
- * Something that we need to deal with is that the scan requests are triggered
- * via a service callback, which is independent of the PreUpdate function. Additionally,
- * we do not have access to the _ecm from the callback and so we cannot access the state
- * of the world during the callback. NOTE I don't believe it is safe or correct to store
- * the _ecm reference for use outside of the PreUpdate but I may be wrong and if so it would
- * simplify our approach.
- *
- * One workaround is to do a scan every PreUpdate (or perhaps every nth iteration) and
- * store the result. When the callback is triggered, we simply retrieve the most recent
- * scan and then send as a ScanResponse message.
- *
- */
-class RFIDScannerPlugin :
+class RFIDScanner :
 	public gz::sim::System,
 	public gz::sim::ISystemConfigure,
 	public gz::sim::ISystemPreUpdate
 {
 
-	public:
-		RFIDScannerPlugin();
+	public: RFIDScanner();
 
-	public:
-		void Configure(const gz::sim::Entity &_entity,
+	// TODO
+	public: ~RFIDScanner() override = default;
+
+	public: void Configure(const gz::sim::Entity &_entity,
 					const std::shared_ptr<const sdf::Element> &_sdf,
 					gz::sim::EntityComponentManager &_ecm,
 					gz::sim::EventManager &_eventMgr) final;
 
-		void PreUpdate(const gz::sim::UpdateInfo &_info,
+	public: void PreUpdate(const gz::sim::UpdateInfo &_info,
 					gz::sim::EntityComponentManager &_ecm) final;
 
-	private:
-		/* @brief Node for the scan service */
-		gz::transport::Node node;
-
-		/* @brief Name of this scanner. Should be unique amongst scanner models. Taken from the 'name' attribute of the <plugin> or <sensor> */
-		std::string scanner_name;
-
-		/* @brief Whether we have initialised all the necessary elements for the scanner to function */
-		bool scanner_initialised{false};
-
-		/* @brief The entity of this scanner. Set during Configure */
-		gz::sim::Entity scanner_entity;
-
-		/* @brief The canonical link of the scanner that is used to determine it's pose. Set during first PreUpdate */
-		gz::sim::Link scanner_link;
-
-		/* @brief Complete a round of RFID scanning and populate the RFIDScanResponse message */
-		bool doScan(const gz::sim::UpdateInfo& _info, gz::sim::EntityComponentManager& _ecm, gz::custom_msgs::RFIDScanResponse& _reply);
-
-	private:
-		/* @brief Callback function for a request to do a scan */
-		bool scanRequestCallback(gz::custom_msgs::RFIDScanResponse& _reply);
-
-	private:
-		// The following parameters are set via the SDF. Defaults are below.
-
-		/* @brief Antenna transmission gain (in dB) */
-		double antenna_power{30};
-
-		// Path Loss Parameters
-
-		/* @brief The path loss factor when we have line of sight to the tag */
-		double path_loss_los_gain{2.2};
-
-		/* @brief Loss (in dB) with distance at 0m for a UHF reader (at ~900Mhz) */
-		double path_loss_base_loss{31};
-
-		/* @brief Minimum distance to use for path loss (avoids log singularities) */
-		double path_loss_min_distance{0.2};
-
-		// Polarization Loss Parameters
-
-		/* @brief Maximum loss from polarization angle (in dB) */
-		double polarization_max_loss{25};
-
-		// Antenna Gain Parameters
-
-		/* @brief Antenna (directional) gain peak (in dBi) */
-		double antenna_gain_peak{6};
-
-		/* @brief Antenna (directional) gain maximum loss (in dBi) */
-		double antenna_gain_max_loss{25};
-
-		/* @brief Antenna (directional) gain parabola scaling (in dBi) */
-		double antenna_gain_loss_scaling{6};
-
-		// Tag Gain Parameters
-
-		/* @brief Tag (directional) gain (in dBi) */
-		double tag_directional_gain{0};
-
-		// Read Distribution Parameters
-
-		/* @brief Power threshold at which transmit and received waves each have 50% read probability (for sigmoid) */
-		double tx_threshold_power{-15};
-		double rx_threshold_power{-70};
-
-		/* @brief Scaling parameter for rx and tx read probabilities */
-		double tx_read_scaling{2};
-		double rx_read_scaling{2};
-
-		/* @brief Whether we return all tags, regardless of RSSI. Used to delegate choice of 'successful read' to caller, or during tests. */
-		bool return_all{false};
-
-	private:
-		/* @brief Sigmoid function implementation */
-		double sigmoid(double x);
-
-		std::random_device rd;
-
-		std::mt19937 gen;
-
-		std::uniform_real_distribution<> distribution;
-
-	private:
-		/* @brief Queue of scan requests to be processed during PreUpdate */
-		std::deque<PendingScan> pendingScans;
-
-		std::mutex pendingMutex;
+	private: std::unique_ptr<RFIDScannerPrivate> dataPtr;
 };
+
+

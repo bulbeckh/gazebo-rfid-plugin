@@ -36,7 +36,7 @@
 					</material>
 				</visual>
 			</link>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>0x32143</uid>
 				<data> some tag data</data>
 			</plugin>
@@ -58,7 +58,7 @@
 					</material>
 				</visual>
 			</link>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>0x837428o3</uid>
 				<data>otherdata</data>
 			</plugin>

@@ -6,8 +6,15 @@
 /* This component holds our information about each RFID tag is and is added to each tag model entity during
  * the RFIDTagManager PreUpdate method */
 
-struct RFIDTagData
+namespace gz
 {
+namespace sim
+{
+namespace components
+{
+
+	struct RFIDTagData
+	{
 	public:
 		std::string uid;
 		std::string data;
@@ -20,8 +27,13 @@ struct RFIDTagData
 		bool operator!=(const RFIDTagData& other) const {
 			return !(*this == other);
 		}
-};
+	};
 
-using RFIDTag = gz::sim::components::Component<RFIDTagData, class RFIDTagTag>;
+	using RFIDTag = Component<RFIDTagData, class RFIDTagTag>;
 
-GZ_SIM_REGISTER_COMPONENT("RFIDTag", RFIDTag)
+	GZ_SIM_REGISTER_COMPONENT("gz_sim_components.RFIDTag", RFIDTag)
+}
+
+}
+
+}

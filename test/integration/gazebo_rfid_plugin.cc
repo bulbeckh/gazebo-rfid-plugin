@@ -16,6 +16,11 @@
  * Timing tests or benchmarks?? i.e. time taken to process 500 tags, 5000 tags, etc.
  *
  *
+ * Add tests for moving tags - does read rssi change after tag move
+ *
+ * Add tests for improper sdf configuration (like scanner not under a model)
+ *
+ *
  */
 
 #include <gtest/gtest.h>
@@ -186,7 +191,7 @@ TEST_F(RFIDPluginTestFixture, ExpectedRSSI)
 	gz::msgs::Empty req;
 	bool result = false;
 
-	node.Request("/RFIDScannerPlugin/scan_request",
+	node.Request("/scanner/scan_request",
 			req,
 			1000,
 			rep,

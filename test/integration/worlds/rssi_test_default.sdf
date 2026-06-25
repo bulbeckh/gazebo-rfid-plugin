@@ -16,7 +16,7 @@
 		<model name="scanner">
 			<static>true</static>
 			<pose>0 0 0 0 0 0</pose>
-			<plugin filename="librfidScanner" name="RFIDScannerPlugin">
+			<plugin filename="librfidScanner" name="RFIDScanner">
 				<antenna_power>30</antenna_power>
 				<path_loss_los_gain>2.2</path_loss_los_gain>
 				<path_loss_base_loss>31</path_loss_base_loss>
@@ -37,7 +37,7 @@
 		<model name="tag0">
 			<static>true</static>
 			<pose> 1 1 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag0</uid>
 				<data>tag 0 data</data>
 			</plugin>
@@ -45,7 +45,7 @@
 		<model name="tag1">
 			<static>true</static>
 			<pose> 1 1 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag1</uid>
 				<data>tag 1 data</data>
 			</plugin>
@@ -53,7 +53,7 @@
 		<model name="tag2">
 			<static>true</static>
 			<pose> 1 1 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag2</uid>
 				<data>tag 2 data</data>
 			</plugin>
@@ -61,7 +61,7 @@
 		<model name="tag3">
 			<static>true</static>
 			<pose> 1 1 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag3</uid>
 				<data>tag 3 data</data>
 			</plugin>
@@ -69,7 +69,7 @@
 		<model name="tag4">
 			<static>true</static>
 			<pose> 1 1 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag4</uid>
 				<data>tag 4 data</data>
 			</plugin>
@@ -77,7 +77,7 @@
 		<model name="tag5">
 			<static>true</static>
 			<pose> 1 2 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag5</uid>
 				<data>tag 5 data</data>
 			</plugin>
@@ -85,7 +85,7 @@
 		<model name="tag6">
 			<static>true</static>
 			<pose> 1 2 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag6</uid>
 				<data>tag 6 data</data>
 			</plugin>
@@ -93,7 +93,7 @@
 		<model name="tag7">
 			<static>true</static>
 			<pose> 1 2 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag7</uid>
 				<data>tag 7 data</data>
 			</plugin>
@@ -101,7 +101,7 @@
 		<model name="tag8">
 			<static>true</static>
 			<pose> 1 2 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag8</uid>
 				<data>tag 8 data</data>
 			</plugin>
@@ -109,7 +109,7 @@
 		<model name="tag9">
 			<static>true</static>
 			<pose> 1 2 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag9</uid>
 				<data>tag 9 data</data>
 			</plugin>
@@ -117,7 +117,7 @@
 		<model name="tag10">
 			<static>true</static>
 			<pose> 1 3 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag10</uid>
 				<data>tag 10 data</data>
 			</plugin>
@@ -125,7 +125,7 @@
 		<model name="tag11">
 			<static>true</static>
 			<pose> 1 3 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag11</uid>
 				<data>tag 11 data</data>
 			</plugin>
@@ -133,7 +133,7 @@
 		<model name="tag12">
 			<static>true</static>
 			<pose> 1 3 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag12</uid>
 				<data>tag 12 data</data>
 			</plugin>
@@ -141,7 +141,7 @@
 		<model name="tag13">
 			<static>true</static>
 			<pose> 1 3 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag13</uid>
 				<data>tag 13 data</data>
 			</plugin>
@@ -149,7 +149,7 @@
 		<model name="tag14">
 			<static>true</static>
 			<pose> 1 3 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag14</uid>
 				<data>tag 14 data</data>
 			</plugin>
@@ -157,7 +157,7 @@
 		<model name="tag15">
 			<static>true</static>
 			<pose> 1 4 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag15</uid>
 				<data>tag 15 data</data>
 			</plugin>
@@ -165,7 +165,7 @@
 		<model name="tag16">
 			<static>true</static>
 			<pose> 1 4 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag16</uid>
 				<data>tag 16 data</data>
 			</plugin>
@@ -173,7 +173,7 @@
 		<model name="tag17">
 			<static>true</static>
 			<pose> 1 4 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag17</uid>
 				<data>tag 17 data</data>
 			</plugin>
@@ -181,7 +181,7 @@
 		<model name="tag18">
 			<static>true</static>
 			<pose> 1 4 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag18</uid>
 				<data>tag 18 data</data>
 			</plugin>
@@ -189,7 +189,7 @@
 		<model name="tag19">
 			<static>true</static>
 			<pose> 1 4 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag19</uid>
 				<data>tag 19 data</data>
 			</plugin>
@@ -197,7 +197,7 @@
 		<model name="tag20">
 			<static>true</static>
 			<pose> 1 5 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag20</uid>
 				<data>tag 20 data</data>
 			</plugin>
@@ -205,7 +205,7 @@
 		<model name="tag21">
 			<static>true</static>
 			<pose> 1 5 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag21</uid>
 				<data>tag 21 data</data>
 			</plugin>
@@ -213,7 +213,7 @@
 		<model name="tag22">
 			<static>true</static>
 			<pose> 1 5 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag22</uid>
 				<data>tag 22 data</data>
 			</plugin>
@@ -221,7 +221,7 @@
 		<model name="tag23">
 			<static>true</static>
 			<pose> 1 5 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag23</uid>
 				<data>tag 23 data</data>
 			</plugin>
@@ -229,7 +229,7 @@
 		<model name="tag24">
 			<static>true</static>
 			<pose> 1 5 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag24</uid>
 				<data>tag 24 data</data>
 			</plugin>
@@ -237,7 +237,7 @@
 		<model name="tag25">
 			<static>true</static>
 			<pose> 2 1 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag25</uid>
 				<data>tag 25 data</data>
 			</plugin>
@@ -245,7 +245,7 @@
 		<model name="tag26">
 			<static>true</static>
 			<pose> 2 1 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag26</uid>
 				<data>tag 26 data</data>
 			</plugin>
@@ -253,7 +253,7 @@
 		<model name="tag27">
 			<static>true</static>
 			<pose> 2 1 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag27</uid>
 				<data>tag 27 data</data>
 			</plugin>
@@ -261,7 +261,7 @@
 		<model name="tag28">
 			<static>true</static>
 			<pose> 2 1 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag28</uid>
 				<data>tag 28 data</data>
 			</plugin>
@@ -269,7 +269,7 @@
 		<model name="tag29">
 			<static>true</static>
 			<pose> 2 1 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag29</uid>
 				<data>tag 29 data</data>
 			</plugin>
@@ -277,7 +277,7 @@
 		<model name="tag30">
 			<static>true</static>
 			<pose> 2 2 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag30</uid>
 				<data>tag 30 data</data>
 			</plugin>
@@ -285,7 +285,7 @@
 		<model name="tag31">
 			<static>true</static>
 			<pose> 2 2 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag31</uid>
 				<data>tag 31 data</data>
 			</plugin>
@@ -293,7 +293,7 @@
 		<model name="tag32">
 			<static>true</static>
 			<pose> 2 2 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag32</uid>
 				<data>tag 32 data</data>
 			</plugin>
@@ -301,7 +301,7 @@
 		<model name="tag33">
 			<static>true</static>
 			<pose> 2 2 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag33</uid>
 				<data>tag 33 data</data>
 			</plugin>
@@ -309,7 +309,7 @@
 		<model name="tag34">
 			<static>true</static>
 			<pose> 2 2 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag34</uid>
 				<data>tag 34 data</data>
 			</plugin>
@@ -317,7 +317,7 @@
 		<model name="tag35">
 			<static>true</static>
 			<pose> 2 3 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag35</uid>
 				<data>tag 35 data</data>
 			</plugin>
@@ -325,7 +325,7 @@
 		<model name="tag36">
 			<static>true</static>
 			<pose> 2 3 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag36</uid>
 				<data>tag 36 data</data>
 			</plugin>
@@ -333,7 +333,7 @@
 		<model name="tag37">
 			<static>true</static>
 			<pose> 2 3 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag37</uid>
 				<data>tag 37 data</data>
 			</plugin>
@@ -341,7 +341,7 @@
 		<model name="tag38">
 			<static>true</static>
 			<pose> 2 3 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag38</uid>
 				<data>tag 38 data</data>
 			</plugin>
@@ -349,7 +349,7 @@
 		<model name="tag39">
 			<static>true</static>
 			<pose> 2 3 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag39</uid>
 				<data>tag 39 data</data>
 			</plugin>
@@ -357,7 +357,7 @@
 		<model name="tag40">
 			<static>true</static>
 			<pose> 2 4 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag40</uid>
 				<data>tag 40 data</data>
 			</plugin>
@@ -365,7 +365,7 @@
 		<model name="tag41">
 			<static>true</static>
 			<pose> 2 4 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag41</uid>
 				<data>tag 41 data</data>
 			</plugin>
@@ -373,7 +373,7 @@
 		<model name="tag42">
 			<static>true</static>
 			<pose> 2 4 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag42</uid>
 				<data>tag 42 data</data>
 			</plugin>
@@ -381,7 +381,7 @@
 		<model name="tag43">
 			<static>true</static>
 			<pose> 2 4 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag43</uid>
 				<data>tag 43 data</data>
 			</plugin>
@@ -389,7 +389,7 @@
 		<model name="tag44">
 			<static>true</static>
 			<pose> 2 4 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag44</uid>
 				<data>tag 44 data</data>
 			</plugin>
@@ -397,7 +397,7 @@
 		<model name="tag45">
 			<static>true</static>
 			<pose> 2 5 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag45</uid>
 				<data>tag 45 data</data>
 			</plugin>
@@ -405,7 +405,7 @@
 		<model name="tag46">
 			<static>true</static>
 			<pose> 2 5 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag46</uid>
 				<data>tag 46 data</data>
 			</plugin>
@@ -413,7 +413,7 @@
 		<model name="tag47">
 			<static>true</static>
 			<pose> 2 5 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag47</uid>
 				<data>tag 47 data</data>
 			</plugin>
@@ -421,7 +421,7 @@
 		<model name="tag48">
 			<static>true</static>
 			<pose> 2 5 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag48</uid>
 				<data>tag 48 data</data>
 			</plugin>
@@ -429,7 +429,7 @@
 		<model name="tag49">
 			<static>true</static>
 			<pose> 2 5 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag49</uid>
 				<data>tag 49 data</data>
 			</plugin>
@@ -437,7 +437,7 @@
 		<model name="tag50">
 			<static>true</static>
 			<pose> 3 1 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag50</uid>
 				<data>tag 50 data</data>
 			</plugin>
@@ -445,7 +445,7 @@
 		<model name="tag51">
 			<static>true</static>
 			<pose> 3 1 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag51</uid>
 				<data>tag 51 data</data>
 			</plugin>
@@ -453,7 +453,7 @@
 		<model name="tag52">
 			<static>true</static>
 			<pose> 3 1 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag52</uid>
 				<data>tag 52 data</data>
 			</plugin>
@@ -461,7 +461,7 @@
 		<model name="tag53">
 			<static>true</static>
 			<pose> 3 1 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag53</uid>
 				<data>tag 53 data</data>
 			</plugin>
@@ -469,7 +469,7 @@
 		<model name="tag54">
 			<static>true</static>
 			<pose> 3 1 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag54</uid>
 				<data>tag 54 data</data>
 			</plugin>
@@ -477,7 +477,7 @@
 		<model name="tag55">
 			<static>true</static>
 			<pose> 3 2 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag55</uid>
 				<data>tag 55 data</data>
 			</plugin>
@@ -485,7 +485,7 @@
 		<model name="tag56">
 			<static>true</static>
 			<pose> 3 2 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag56</uid>
 				<data>tag 56 data</data>
 			</plugin>
@@ -493,7 +493,7 @@
 		<model name="tag57">
 			<static>true</static>
 			<pose> 3 2 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag57</uid>
 				<data>tag 57 data</data>
 			</plugin>
@@ -501,7 +501,7 @@
 		<model name="tag58">
 			<static>true</static>
 			<pose> 3 2 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag58</uid>
 				<data>tag 58 data</data>
 			</plugin>
@@ -509,7 +509,7 @@
 		<model name="tag59">
 			<static>true</static>
 			<pose> 3 2 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag59</uid>
 				<data>tag 59 data</data>
 			</plugin>
@@ -517,7 +517,7 @@
 		<model name="tag60">
 			<static>true</static>
 			<pose> 3 3 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag60</uid>
 				<data>tag 60 data</data>
 			</plugin>
@@ -525,7 +525,7 @@
 		<model name="tag61">
 			<static>true</static>
 			<pose> 3 3 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag61</uid>
 				<data>tag 61 data</data>
 			</plugin>
@@ -533,7 +533,7 @@
 		<model name="tag62">
 			<static>true</static>
 			<pose> 3 3 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag62</uid>
 				<data>tag 62 data</data>
 			</plugin>
@@ -541,7 +541,7 @@
 		<model name="tag63">
 			<static>true</static>
 			<pose> 3 3 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag63</uid>
 				<data>tag 63 data</data>
 			</plugin>
@@ -549,7 +549,7 @@
 		<model name="tag64">
 			<static>true</static>
 			<pose> 3 3 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag64</uid>
 				<data>tag 64 data</data>
 			</plugin>
@@ -557,7 +557,7 @@
 		<model name="tag65">
 			<static>true</static>
 			<pose> 3 4 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag65</uid>
 				<data>tag 65 data</data>
 			</plugin>
@@ -565,7 +565,7 @@
 		<model name="tag66">
 			<static>true</static>
 			<pose> 3 4 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag66</uid>
 				<data>tag 66 data</data>
 			</plugin>
@@ -573,7 +573,7 @@
 		<model name="tag67">
 			<static>true</static>
 			<pose> 3 4 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag67</uid>
 				<data>tag 67 data</data>
 			</plugin>
@@ -581,7 +581,7 @@
 		<model name="tag68">
 			<static>true</static>
 			<pose> 3 4 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag68</uid>
 				<data>tag 68 data</data>
 			</plugin>
@@ -589,7 +589,7 @@
 		<model name="tag69">
 			<static>true</static>
 			<pose> 3 4 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag69</uid>
 				<data>tag 69 data</data>
 			</plugin>
@@ -597,7 +597,7 @@
 		<model name="tag70">
 			<static>true</static>
 			<pose> 3 5 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag70</uid>
 				<data>tag 70 data</data>
 			</plugin>
@@ -605,7 +605,7 @@
 		<model name="tag71">
 			<static>true</static>
 			<pose> 3 5 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag71</uid>
 				<data>tag 71 data</data>
 			</plugin>
@@ -613,7 +613,7 @@
 		<model name="tag72">
 			<static>true</static>
 			<pose> 3 5 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag72</uid>
 				<data>tag 72 data</data>
 			</plugin>
@@ -621,7 +621,7 @@
 		<model name="tag73">
 			<static>true</static>
 			<pose> 3 5 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag73</uid>
 				<data>tag 73 data</data>
 			</plugin>
@@ -629,7 +629,7 @@
 		<model name="tag74">
 			<static>true</static>
 			<pose> 3 5 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag74</uid>
 				<data>tag 74 data</data>
 			</plugin>
@@ -637,7 +637,7 @@
 		<model name="tag75">
 			<static>true</static>
 			<pose> 4 1 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag75</uid>
 				<data>tag 75 data</data>
 			</plugin>
@@ -645,7 +645,7 @@
 		<model name="tag76">
 			<static>true</static>
 			<pose> 4 1 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag76</uid>
 				<data>tag 76 data</data>
 			</plugin>
@@ -653,7 +653,7 @@
 		<model name="tag77">
 			<static>true</static>
 			<pose> 4 1 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag77</uid>
 				<data>tag 77 data</data>
 			</plugin>
@@ -661,7 +661,7 @@
 		<model name="tag78">
 			<static>true</static>
 			<pose> 4 1 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag78</uid>
 				<data>tag 78 data</data>
 			</plugin>
@@ -669,7 +669,7 @@
 		<model name="tag79">
 			<static>true</static>
 			<pose> 4 1 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag79</uid>
 				<data>tag 79 data</data>
 			</plugin>
@@ -677,7 +677,7 @@
 		<model name="tag80">
 			<static>true</static>
 			<pose> 4 2 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag80</uid>
 				<data>tag 80 data</data>
 			</plugin>
@@ -685,7 +685,7 @@
 		<model name="tag81">
 			<static>true</static>
 			<pose> 4 2 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag81</uid>
 				<data>tag 81 data</data>
 			</plugin>
@@ -693,7 +693,7 @@
 		<model name="tag82">
 			<static>true</static>
 			<pose> 4 2 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag82</uid>
 				<data>tag 82 data</data>
 			</plugin>
@@ -701,7 +701,7 @@
 		<model name="tag83">
 			<static>true</static>
 			<pose> 4 2 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag83</uid>
 				<data>tag 83 data</data>
 			</plugin>
@@ -709,7 +709,7 @@
 		<model name="tag84">
 			<static>true</static>
 			<pose> 4 2 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag84</uid>
 				<data>tag 84 data</data>
 			</plugin>
@@ -717,7 +717,7 @@
 		<model name="tag85">
 			<static>true</static>
 			<pose> 4 3 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag85</uid>
 				<data>tag 85 data</data>
 			</plugin>
@@ -725,7 +725,7 @@
 		<model name="tag86">
 			<static>true</static>
 			<pose> 4 3 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag86</uid>
 				<data>tag 86 data</data>
 			</plugin>
@@ -733,7 +733,7 @@
 		<model name="tag87">
 			<static>true</static>
 			<pose> 4 3 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag87</uid>
 				<data>tag 87 data</data>
 			</plugin>
@@ -741,7 +741,7 @@
 		<model name="tag88">
 			<static>true</static>
 			<pose> 4 3 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag88</uid>
 				<data>tag 88 data</data>
 			</plugin>
@@ -749,7 +749,7 @@
 		<model name="tag89">
 			<static>true</static>
 			<pose> 4 3 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag89</uid>
 				<data>tag 89 data</data>
 			</plugin>
@@ -757,7 +757,7 @@
 		<model name="tag90">
 			<static>true</static>
 			<pose> 4 4 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag90</uid>
 				<data>tag 90 data</data>
 			</plugin>
@@ -765,7 +765,7 @@
 		<model name="tag91">
 			<static>true</static>
 			<pose> 4 4 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag91</uid>
 				<data>tag 91 data</data>
 			</plugin>
@@ -773,7 +773,7 @@
 		<model name="tag92">
 			<static>true</static>
 			<pose> 4 4 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag92</uid>
 				<data>tag 92 data</data>
 			</plugin>
@@ -781,7 +781,7 @@
 		<model name="tag93">
 			<static>true</static>
 			<pose> 4 4 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag93</uid>
 				<data>tag 93 data</data>
 			</plugin>
@@ -789,7 +789,7 @@
 		<model name="tag94">
 			<static>true</static>
 			<pose> 4 4 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag94</uid>
 				<data>tag 94 data</data>
 			</plugin>
@@ -797,7 +797,7 @@
 		<model name="tag95">
 			<static>true</static>
 			<pose> 4 5 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag95</uid>
 				<data>tag 95 data</data>
 			</plugin>
@@ -805,7 +805,7 @@
 		<model name="tag96">
 			<static>true</static>
 			<pose> 4 5 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag96</uid>
 				<data>tag 96 data</data>
 			</plugin>
@@ -813,7 +813,7 @@
 		<model name="tag97">
 			<static>true</static>
 			<pose> 4 5 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag97</uid>
 				<data>tag 97 data</data>
 			</plugin>
@@ -821,7 +821,7 @@
 		<model name="tag98">
 			<static>true</static>
 			<pose> 4 5 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag98</uid>
 				<data>tag 98 data</data>
 			</plugin>
@@ -829,7 +829,7 @@
 		<model name="tag99">
 			<static>true</static>
 			<pose> 4 5 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag99</uid>
 				<data>tag 99 data</data>
 			</plugin>
@@ -837,7 +837,7 @@
 		<model name="tag100">
 			<static>true</static>
 			<pose> 5 1 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag100</uid>
 				<data>tag 100 data</data>
 			</plugin>
@@ -845,7 +845,7 @@
 		<model name="tag101">
 			<static>true</static>
 			<pose> 5 1 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag101</uid>
 				<data>tag 101 data</data>
 			</plugin>
@@ -853,7 +853,7 @@
 		<model name="tag102">
 			<static>true</static>
 			<pose> 5 1 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag102</uid>
 				<data>tag 102 data</data>
 			</plugin>
@@ -861,7 +861,7 @@
 		<model name="tag103">
 			<static>true</static>
 			<pose> 5 1 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag103</uid>
 				<data>tag 103 data</data>
 			</plugin>
@@ -869,7 +869,7 @@
 		<model name="tag104">
 			<static>true</static>
 			<pose> 5 1 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag104</uid>
 				<data>tag 104 data</data>
 			</plugin>
@@ -877,7 +877,7 @@
 		<model name="tag105">
 			<static>true</static>
 			<pose> 5 2 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag105</uid>
 				<data>tag 105 data</data>
 			</plugin>
@@ -885,7 +885,7 @@
 		<model name="tag106">
 			<static>true</static>
 			<pose> 5 2 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag106</uid>
 				<data>tag 106 data</data>
 			</plugin>
@@ -893,7 +893,7 @@
 		<model name="tag107">
 			<static>true</static>
 			<pose> 5 2 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag107</uid>
 				<data>tag 107 data</data>
 			</plugin>
@@ -901,7 +901,7 @@
 		<model name="tag108">
 			<static>true</static>
 			<pose> 5 2 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag108</uid>
 				<data>tag 108 data</data>
 			</plugin>
@@ -909,7 +909,7 @@
 		<model name="tag109">
 			<static>true</static>
 			<pose> 5 2 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag109</uid>
 				<data>tag 109 data</data>
 			</plugin>
@@ -917,7 +917,7 @@
 		<model name="tag110">
 			<static>true</static>
 			<pose> 5 3 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag110</uid>
 				<data>tag 110 data</data>
 			</plugin>
@@ -925,7 +925,7 @@
 		<model name="tag111">
 			<static>true</static>
 			<pose> 5 3 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag111</uid>
 				<data>tag 111 data</data>
 			</plugin>
@@ -933,7 +933,7 @@
 		<model name="tag112">
 			<static>true</static>
 			<pose> 5 3 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag112</uid>
 				<data>tag 112 data</data>
 			</plugin>
@@ -941,7 +941,7 @@
 		<model name="tag113">
 			<static>true</static>
 			<pose> 5 3 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag113</uid>
 				<data>tag 113 data</data>
 			</plugin>
@@ -949,7 +949,7 @@
 		<model name="tag114">
 			<static>true</static>
 			<pose> 5 3 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag114</uid>
 				<data>tag 114 data</data>
 			</plugin>
@@ -957,7 +957,7 @@
 		<model name="tag115">
 			<static>true</static>
 			<pose> 5 4 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag115</uid>
 				<data>tag 115 data</data>
 			</plugin>
@@ -965,7 +965,7 @@
 		<model name="tag116">
 			<static>true</static>
 			<pose> 5 4 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag116</uid>
 				<data>tag 116 data</data>
 			</plugin>
@@ -973,7 +973,7 @@
 		<model name="tag117">
 			<static>true</static>
 			<pose> 5 4 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag117</uid>
 				<data>tag 117 data</data>
 			</plugin>
@@ -981,7 +981,7 @@
 		<model name="tag118">
 			<static>true</static>
 			<pose> 5 4 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag118</uid>
 				<data>tag 118 data</data>
 			</plugin>
@@ -989,7 +989,7 @@
 		<model name="tag119">
 			<static>true</static>
 			<pose> 5 4 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag119</uid>
 				<data>tag 119 data</data>
 			</plugin>
@@ -997,7 +997,7 @@
 		<model name="tag120">
 			<static>true</static>
 			<pose> 5 5 1 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag120</uid>
 				<data>tag 120 data</data>
 			</plugin>
@@ -1005,7 +1005,7 @@
 		<model name="tag121">
 			<static>true</static>
 			<pose> 5 5 2 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag121</uid>
 				<data>tag 121 data</data>
 			</plugin>
@@ -1013,7 +1013,7 @@
 		<model name="tag122">
 			<static>true</static>
 			<pose> 5 5 3 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag122</uid>
 				<data>tag 122 data</data>
 			</plugin>
@@ -1021,7 +1021,7 @@
 		<model name="tag123">
 			<static>true</static>
 			<pose> 5 5 4 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag123</uid>
 				<data>tag 123 data</data>
 			</plugin>
@@ -1029,7 +1029,7 @@
 		<model name="tag124">
 			<static>true</static>
 			<pose> 5 5 5 0 0 0</pose>
-			<plugin filename="librfidTag" name="RFIDTagPlugin">
+			<plugin filename="librfidTag" name="RFIDTag">
 				<uid>tag124</uid>
 				<data>tag 124 data</data>
 			</plugin>

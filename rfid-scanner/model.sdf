@@ -39,7 +39,7 @@
 
 		</link>
 
-		<plugin filename="librfidScanner" name="RFIDScannerPlugin"></plugin>
+		<plugin filename="librfidScanner" name="RFIDScanner"></plugin>
 
 	</model>
 </sdf>
