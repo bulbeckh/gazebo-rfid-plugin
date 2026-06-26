@@ -18,14 +18,15 @@
 			<pose>0 0 0 0 0 0</pose>
 			<plugin filename="librfidScanner" name="RFIDScanner">
 				<antenna_power>30</antenna_power>
-				<path_loss_los_gain>2.2</path_loss_los_gain>
+				<path_loss_los_exponent>2.2</path_loss_los_exponent>
 				<path_loss_base_loss>31</path_loss_base_loss>
 				<path_loss_min_distance>0.2</path_loss_min_distance>
 				<polarization_max_loss>25</polarization_max_loss>
 				<antenna_gain_peak>6</antenna_gain_peak>
 				<antenna_gain_max_loss>25</antenna_gain_max_loss>
-				<antenna_gain_loss_scaling>6</antenna_gain_loss_scaling>
+				<antenna_gain_half_beamwidth>0.7</antenna_gain_half_beamwidth>
 				<tag_directional_gain>0</tag_directional_gain>
+				<backscatter_loss>20</backscatter_loss>
 
 				<tx_threshold_power>-15</tx_threshold_power>
 				<rx_threshold_power>-75</rx_threshold_power>

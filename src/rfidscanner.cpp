@@ -85,7 +85,7 @@ class RFIDScannerPrivate
 	public: double antenna_power{30};
 
 	/* @brief The path loss factor when we have line of sight to the tag */
-	public: double path_loss_los_gain{2.2};
+	public: double path_loss_los_exponent{2.2};
 
 	/* @brief Loss (in dB) with distance at 0m for a UHF reader (at ~900Mhz) */
 	public: double path_loss_base_loss{31};
@@ -102,11 +102,14 @@ class RFIDScannerPrivate
 	/* @brief Antenna (directional) gain maximum loss (in dBi) */
 	public: double antenna_gain_max_loss{25};
 
-	/* @brief Antenna (directional) gain parabola scaling (in dBi) */
-	public: double antenna_gain_loss_scaling{6};
+	/* @brief Antenna (directional) gain half beamwidth angle (in radians) */
+	public: double antenna_gain_half_beamwidth{0.7};
 
 	/* @brief Tag (directional) gain (in dBi) */
 	public: double tag_directional_gain{0};
+
+	/* @brief Constnat loss from tag reradiation (in dB) */
+	public: double backscatter_loss{20};
 
 	/* @brief Power threshold at which transmitted and received signals each have 50% read probability (for sigmoid) */
 	public: double tx_threshold_power{-15};
@@ -243,25 +246,23 @@ bool RFIDScannerPrivate::DoScan(const gz::sim::UpdateInfo& _info, gz::sim::Entit
 				double antenna_gain_angle = std::acos(scanner_direction.Dot(scanner_pose_vector.Normalized()));
 
 				// Calculate tranmission power
-				//
-				// In default configuration, equation is: antenna_gain = 6 - min(25, 6*(\theta^{2}))
-				double antenna_gain = antenna_gain_peak - std::min(antenna_gain_max_loss, antenna_gain_loss_scaling*std::pow(antenna_gain_angle,2));
+				double antenna_gain = antenna_gain_peak - std::min(antenna_gain_max_loss, 12*std::pow(antenna_gain_angle / antenna_gain_half_beamwidth,2));
 
 				// Calculate polarization loss
 				//
 				// In default configuration, equation is: polarization_loss = min(25, log10(cos(\theta)))
 				double loss_polarization = std::min(polarization_max_loss, -20*std::log10(std::abs(cos_theta)));
 
-				// TODO Add LOS / NLOS factor between reader and tag. We assume no line-of-sight always here, hence the multiplication by path_loss_los_gain
+				// TODO Add LOS / NLOS factor between reader and tag. We assume no line-of-sight always here, hence the multiplication by path_loss_los_exponent
 				
 				// Calculate path loss
 				//
 				// In default configuration, equation is: path_loss = 31 + 10*2.2*los10(max(0.2, distance))
-				double loss_path = path_loss_base_loss + 10*path_loss_los_gain*std::log10(std::max(path_loss_min_distance, tag_scanner_linear_distance));
+				double loss_path = path_loss_base_loss + 10*path_loss_los_exponent*std::log10(std::max(path_loss_min_distance, tag_scanner_linear_distance));
 
 				// Calculate tranmission and received power
-				double transmission_power = antenna_power + antenna_gain + tag_directional_gain - loss_polarization - loss_path;
-				double received_power = antenna_power + antenna_gain + tag_directional_gain - 2*(loss_polarization + loss_path);
+				double transmission_power = antenna_power + antenna_gain + 2*tag_directional_gain - loss_polarization - loss_path;
+				double received_power = antenna_power + 2*antenna_gain + 2*tag_directional_gain - 2*(loss_polarization + loss_path) - backscatter_loss;
 
 				// Calculate read probabilities
 				double p_read_tx = sigmoid((transmission_power - tx_threshold_power) / tx_read_scaling);
@@ -344,7 +345,7 @@ void RFIDScanner::Configure(const gz::sim::Entity &_entity,
 	// Retrieve configuration from the sdf
 	if (_sdf->HasElement("antenna_power")) this->dataPtr->antenna_power = _sdf->Get<double>("antenna_power");
 
-	if (_sdf->HasElement("path_loss_los_gain")) this->dataPtr->path_loss_los_gain = _sdf->Get<double>("path_loss_los_gain");
+	if (_sdf->HasElement("path_loss_los_exponent")) this->dataPtr->path_loss_los_exponent = _sdf->Get<double>("path_loss_los_exponent");
 
 	if (_sdf->HasElement("path_loss_base_loss")) this->dataPtr->path_loss_base_loss = _sdf->Get<double>("path_loss_base_loss");
 
@@ -364,9 +365,18 @@ void RFIDScanner::Configure(const gz::sim::Entity &_entity,
 
 	if (_sdf->HasElement("antenna_gain_max_loss")) this->dataPtr->antenna_gain_max_loss = _sdf->Get<double>("antenna_gain_max_loss");
 
-	if (_sdf->HasElement("antenna_gain_loss_scaling")) this->dataPtr->antenna_gain_loss_scaling = _sdf->Get<double>("antenna_gain_loss_scaling");
+	if (_sdf->HasElement("antenna_gain_half_beamwidth")) {
+		double h_beamwidth = _sdf->Get<double>("antenna_gain_half_beamwidth");
+		if (h_beamwidth >= 0.0) {
+			this->dataPtr->antenna_gain_half_beamwidth = h_beamwidth;
+		} else {
+			gzwarn << "Half beamwidth angle must be greater than 0. Using default.\n";
+		}
+	}
 
 	if (_sdf->HasElement("tag_directional_gain")) this->dataPtr->tag_directional_gain = _sdf->Get<double>("tag_directional_gain");
+
+	if (_sdf->HasElement("backscatter_loss")) this->dataPtr->backscatter_loss = _sdf->Get<double>("backscatter_loss");
 
 	if (_sdf->HasElement("tx_threshold_power")) this->dataPtr->tx_threshold_power = _sdf->Get<double>("tx_threshold_power");
 
@@ -377,7 +387,7 @@ void RFIDScanner::Configure(const gz::sim::Entity &_entity,
 		if (tx_read_s > 0.0) {
 			this->dataPtr->tx_read_scaling = tx_read_s;
 		} else {
-			gzwarn << "tx_read_scaling must be greater than 0. using default.\n";
+			gzwarn << "tx_read_scaling must be greater than 0. Using default.\n";
 		}
 	}
 
@@ -386,7 +396,7 @@ void RFIDScanner::Configure(const gz::sim::Entity &_entity,
 		if (rx_read_s > 0.0) {
 			this->dataPtr->rx_read_scaling = rx_read_s;
 		} else {
-			gzwarn << "rx_read_scaling must be greater than 0. using default.\n";
+			gzwarn << "rx_read_scaling must be greater than 0. Using default.\n";
 		}
 	}
 
