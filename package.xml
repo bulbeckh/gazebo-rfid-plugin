@@ -4,7 +4,7 @@
   <version>0.0.1</version>
   <description>RFID Gazebo plugin, including models and RFID environment plugins</description>
 
-  <maintainer email="">Henry Bulbeck</maintainer>
+  <maintainer email="henrybulbeck@gmail.com">Henry Bulbeck</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
